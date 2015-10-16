@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Jak widać, działa poprawnie :)"
+        android:text="Jak widać, działa poprawnie :) testowa zmiana, powinna być widoczna po pobraniu z GIT&apos;a"
         android:id="@+id/textView"
         android:layout_marginTop="41dp"
         android:layout_below="@+id/textView2"
