@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp"
+    android:background="@color/colorGrayOne">
+
+    <ListView
+        android:layout_width="100dp"
+        android:layout_below="@+id/textView"
+        android:background="@drawable/shadow"
+        android:paddingBottom="6dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="6dp"
+        android:outlineProvider="bounds"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:elevation="17dp"
+        android:layout_height="280dp"
+        android:id="@+id/generalStats"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        />
+
+    <TextView
+        android:text="Moja Muzyka"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:textColor="@android:color/background_light"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textAlignment="viewStart"
+        android:layout_marginLeft="24dp"
+        android:textSize="18sp" />
+</RelativeLayout>
