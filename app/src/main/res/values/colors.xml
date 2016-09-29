@@ -3,4 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorWhite">#ffffff</color>
+
+    <color name="colorGrayOne">#555555</color>
+    <color name="colorGrayTwo">#616161</color>
+
+    <color name="colorRedOne">#b71c1c</color>
+
+    <color name="colorFacebook">#3b5998</color>
 </resources>
