@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_player"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.jacekpodwysocki.soundie.PlayerActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorGrayOne"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+
+
+
+        <ImageView
+            android:id="@+id/rectimage"
+            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            android:src="@drawable/rectangle"
+            android:layout_alignParentStart="true">
+        </ImageView>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/icon_back"
+            android:gravity="center"
+            android:id="@+id/playerButtonBack"
+            android:layout_marginStart="19dp"
+            android:layout_marginTop="18dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true" />
+
+        <TextView
+            android:text="Gorillaz - Empire Ants"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trackTitleText"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="1dp"
+            android:layout_alignTop="@+id/playerButtonBack"
+            android:layout_toEndOf="@+id/playerButtonBack"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="250dp"
+            app:srcCompat="@drawable/coverimage"
+            android:layout_marginTop="0dp"
+            android:id="@+id/coverImage"
+            android:layout_below="@+id/rectimage"
+            android:background="@android:color/black"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:srcCompat="@drawable/icon_track_back"
+            android:layout_marginTop="35dp"
+            android:id="@+id/trackButtonBack"
+            android:background="@drawable/roundcorner"
+            android:layout_below="@+id/coverImage"
+            android:layout_toEndOf="@+id/playerButtonBack"
+            android:scaleType="fitCenter" />
+
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:srcCompat="@drawable/icon_track_forward"
+            android:background="@drawable/roundcorner"
+            android:layout_marginTop="35dp"
+            android:id="@+id/trackButtonForward"
+            android:scaleType="fitCenter"
+            android:layout_marginStart="46dp"
+            android:layout_below="@+id/coverImage"
+            android:layout_toEndOf="@+id/trackButtonPlay" />
+
+        <ImageButton
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:srcCompat="@drawable/icon_track_play"
+            android:id="@+id/trackButtonPlay"
+            android:background="@drawable/roundcorner"
+            android:scaleType="fitCenter"
+            android:layout_alignTop="@+id/trackButtonForward"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

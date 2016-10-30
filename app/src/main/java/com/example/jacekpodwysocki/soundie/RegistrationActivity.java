@@ -3,6 +3,7 @@ package com.example.jacekpodwysocki.soundie;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import static android.R.attr.name;
+import static android.widget.Toast.makeText;
 import static com.example.jacekpodwysocki.soundie.R.id.registerBtn;
 import static com.example.jacekpodwysocki.soundie.R.id.registrationEmail;
 import static com.example.jacekpodwysocki.soundie.R.id.registrationFirstName;
@@ -48,6 +50,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private EditText registrationEmail;
     private EditText registrationPassword;
     private ProgressDialog pDialog;
+    private General general;
     private SessionManager session;
     private SQLiteHandler db;
 
@@ -62,6 +65,9 @@ public class RegistrationActivity extends AppCompatActivity {
         registrationEmail = (EditText) findViewById(R.id.registrationEmail);
         registrationPassword = (EditText) findViewById(R.id.registrationPassword);
         registerBtn = (Button) findViewById(R.id.registerBtn);
+
+        //custom Toast
+        general = new General();
 
         // Progress dialog
         pDialog = new ProgressDialog(this);
@@ -93,9 +99,8 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (!firstName.isEmpty() && !lastName.isEmpty() && !email.isEmpty() && !password.isEmpty()) {
                     registerUser(firstName, lastName, email, password);
                 } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Uzupełnij wszystkie pola!", Toast.LENGTH_LONG)
-                            .show();
+                    general.showToast("Uzupełnij wszystkie wymagane pola",getApplicationContext());
+
                 }
             }
         });
@@ -118,7 +123,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(String response) {
-                Log.d("sss", "Register Response: " + response.toString());
                 hideDialog();
 
                 try {
@@ -136,8 +140,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         // Inserting row in users table
                         db.addUser(Id, FirstName,LastName, Email);
 
-                        Toast.makeText(getApplicationContext(), "Zarejestrowano pomyślnie, możesz się zalogować", Toast.LENGTH_LONG).show();
-
+                        general.showToast("Zarejestrowano pomyślnie, możesz się zalogować",getApplicationContext());
                         // Launch login activity
                         Intent intent = new Intent(getApplicationContext(),
                                 MainActivity.class);
@@ -147,9 +150,8 @@ public class RegistrationActivity extends AppCompatActivity {
 
                         // Error occurred in registration. Get the error
                         // message
-                        String errorMsg = jObj.getString("error_msg");
-                        Toast.makeText(getApplicationContext(),
-                                errorMsg, Toast.LENGTH_LONG).show();
+                        String errorMsg = jObj.getString("message");
+                        general.showToast(errorMsg,getApplicationContext());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -160,9 +162,11 @@ public class RegistrationActivity extends AppCompatActivity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("ssss", "Registration Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getApplicationContext());
+                }else{
+                    general.showToast(error.getMessage(), getApplicationContext());
+                }
                 hideDialog();
             }
         }) {

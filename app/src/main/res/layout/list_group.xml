@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="5dp"
+    android:layout_height="60dp"
+    android:id="@+id/songGroupLayout"
+    android:background="@color/colorGrayTwo"
+
+    >
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/iconToggle"
+        android:layout_height="30dp"
+        app:srcCompat="@drawable/arrow_down"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="-1dp"
+        android:layout_width="30dp"
+        android:layout_centerVertical="false"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/trackTitleText"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Made In Heaven"
+        android:textColor="@color/colorGrayThree"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="3dp"
+        android:textSize="18sp"
+        android:layout_alignParentStart="true"
+        android:layout_toEndOf="@+id/iconToggle" />
+
+    <TextView
+        android:id="@+id/trackArtist"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Queen"
+        android:color="#eeeeee"
+        android:layout_marginStart="14dp"
+        android:layout_marginTop="30dp"
+        android:textSize="14sp"
+        android:layout_alignParentStart="true"
+        android:layout_toEndOf="@+id/trackTitleText"
+        android:textColor="@color/colorGrayFive" />
+
+</RelativeLayout>

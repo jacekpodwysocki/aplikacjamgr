@@ -38,7 +38,7 @@ public class SoundFinderFragment extends Fragment {
         mapView.onCreate(savedInstanceState);
 
         // Gets to GoogleMap from the MapView and does initialization stuff
-        map = mapView.getMap();
+//        map = mapView.getMapAsync(rootView);
         Log.i(getResources().getString(R.string.debugTag), "create sound finder fragment");
         LatLng sydney = new LatLng(-34, 151);
         map.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));

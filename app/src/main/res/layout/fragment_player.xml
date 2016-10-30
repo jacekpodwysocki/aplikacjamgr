@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_player"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.jacekpodwysocki.soundie.PlayerActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorGrayThree"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+
+
+
+        <ImageView
+            android:id="@+id/rectimage"
+            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            android:src="@drawable/rectangle"
+            android:layout_alignParentStart="true">
+        </ImageView>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/icon_back"
+            android:gravity="center"
+            android:id="@+id/playerButtonBack"
+            android:layout_marginStart="19dp"
+            android:layout_marginTop="18dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:onClick="goToMyMusic" />
+
+        <TextView
+            android:text="Gorillaz - Empire Ants"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trackTitleText"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="1dp"
+            android:layout_alignTop="@+id/playerButtonBack"
+            android:layout_toEndOf="@+id/playerButtonBack"
+            android:textColor="@color/colorWhite"
+            android:textSize="17sp" />
+
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rectimage"
+            android:layout_above="@+id/playerControlsLayout"
+            android:background="@color/colorRedOne"
+            >
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_heightPercent="85%"
+                app:srcCompat="@drawable/coverimage"
+                android:layout_alignEnd="@+id/rectimage"
+                android:layout_marginTop="0dp"
+                android:id="@+id/coverImage"
+                android:layout_below="@+id/rectimage"
+                android:background="@android:color/black"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+
+            android:layout_alignParentBottom="true"
+            android:id="@+id/playerControlsLayout"
+            android:background="@color/colorGrayFour">
+
+        </RelativeLayout>
+
+        <ImageButton
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:srcCompat="@drawable/icon_track_back"
+            android:layout_marginTop="28dp"
+            android:id="@+id/trackButtonBack"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:layout_marginEnd="25dp"
+            android:background="@drawable/roundcorner"
+            android:layout_toStartOf="@+id/trackButtonPlayPause"
+            android:scaleType="fitCenter"
+            android:layout_alignTop="@+id/playerControlsLayout"
+            />
+
+        <ImageButton
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:srcCompat="@drawable/icon_track_forward"
+            android:background="@drawable/roundcorner"
+            android:layout_marginTop="28dp"
+            android:id="@+id/trackButtonForward"
+            android:scaleType="fitCenter"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:layout_toEndOf="@+id/trackButtonPlayPause"
+            android:layout_marginStart="25dp"
+            android:layout_alignTop="@+id/playerControlsLayout"/>
+
+
+
+        <ImageButton
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:srcCompat="@drawable/icon_track_play"
+            android:id="@+id/trackButtonPlayPause"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/roundcorner"
+            android:paddingTop="10dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:scaleType="fitCenter"
+            android:layout_alignTop="@+id/playerControlsLayout"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:text="0:45"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView4"
+            android:layout_marginStart="-28dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/colorWhite"
+            android:layout_alignTop="@+id/trackProgress"
+            android:layout_alignStart="@+id/trackProgress" />
+
+        <TextView
+            android:text="2:12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/trackTimeLeft"
+            android:layout_marginEnd="-28dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/colorWhite"
+            android:layout_alignTop="@+id/trackProgress"
+            android:layout_alignEnd="@+id/trackProgress" />
+
+        <SeekBar
+            android:id="@+id/trackProgress"
+            android:progressDrawable="@drawable/progressbar"
+            android:theme="@style/SoundieSeekBarTheme"
+            android:layout_width="220dp"
+            app:layout_widthPercent="65%"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="22dp"
+            android:indeterminate="false"
+            android:maxHeight="3dp"
+            android:minHeight="3dp"
+            android:progress="46"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

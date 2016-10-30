@@ -1,5 +1,6 @@
 package com.example.jacekpodwysocki.soundie;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
@@ -24,6 +25,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+import static android.R.attr.fragment;
+import static android.R.attr.id;
+
 public class MainActivity extends AppCompatActivity {
     //private static final String TAG = RegisterActivity.class.getSimpleName();
     private Button loginBtn;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
     private SessionManager session;
     private SQLiteHandler db;
+    private General general;
 
 
     @Override
@@ -47,16 +52,15 @@ public class MainActivity extends AppCompatActivity {
         pDialog = new ProgressDialog(this);
         pDialog.setCancelable(false);
 
-        // Session manager
-        session = new SessionManager(getApplicationContext());
-        if (session.isLoggedIn()) {
-            Toast.makeText(getApplicationContext(), "User jest zalogowany", Toast.LENGTH_LONG).show();
-        }else{
-            Toast.makeText(getApplicationContext(), "User nie zalogowany", Toast.LENGTH_LONG).show();
-        }
-
         // SQLite database handler
         db = new SQLiteHandler(getApplicationContext());
+
+        // custom Toast
+        general = new General();
+
+
+        // Session manager
+        session = new SessionManager(getApplicationContext());
 
         // Check if user is already logged in or not
         if (session.isLoggedIn()) {
@@ -80,9 +84,8 @@ public class MainActivity extends AppCompatActivity {
                     checkLogin(email, password);
                 } else {
                     // Prompt user to enter credentials
-                    Toast.makeText(getApplicationContext(),
-                            "Wpisz adres email oraz nazwę użytkownika", Toast.LENGTH_LONG)
-                            .show();
+                    general.showToast("Wpisz adres email oraz nazwę użytkownika",getApplicationContext());
+
                 }
             }
 
@@ -136,13 +139,13 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         // Error in login. Get the error message
                         String errorMsg = jObj.getString("message");
-                        Toast.makeText(getApplicationContext(),
-                                errorMsg, Toast.LENGTH_LONG).show();
+
+                        general.showToast(errorMsg,getApplicationContext());
                     }
                 } catch (JSONException e) {
                     // JSON error
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Json error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    general.showToast("Json error: " + e.getMessage(),getApplicationContext());
                 }
 
             }
@@ -150,9 +153,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(getResources().getString(R.string.debugTag), "Login Error: " + error.getMessage());
-                Toast.makeText(getApplicationContext(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getApplicationContext());
+                }else{
+                    general.showToast(error.getMessage(), getApplicationContext());
+                }
                 hideDialog();
             }
         }) {
@@ -166,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             protected Map<String, String> getParams() {
-                // Posting parameters to login url
+                // Posting parameters tozn url
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("email", email);
                 params.put("password", password);
@@ -190,12 +195,6 @@ public class MainActivity extends AppCompatActivity {
             pDialog.dismiss();
     }
 
-    public void bypassLogin(View v) {
-        Button btnBypassLogin = (Button) v;
-
-        Intent startIntent = new Intent(getApplicationContext(), MenuActivity.class);
-        startActivity(startIntent);
-    }
 
     public void goToRegistration(View v) {
         TextView registerBtn = (TextView) v;
@@ -204,6 +203,19 @@ public class MainActivity extends AppCompatActivity {
         startActivity(startIntent);
     }
 
+    public void goToPlayer(View v){
+        // pass parameter
+        Intent startIntent = new Intent(getApplicationContext(), MenuActivity.class);
+        startIntent.putExtra("fragmentParam", "player");
+        startActivity(startIntent);
 
+    }
+    public void bypassLogin(View v){
+        Button btnBypassLogin = (Button) v;
+
+        Intent startIntent = new Intent(getApplicationContext(),MenuActivity.class);
+        startActivity(startIntent);
+    }
 
 }
+

@@ -6,10 +6,13 @@
         <item name="colorPrimary">@color/colorRedOne</item>
         <item name="android:textViewStyle">@style/RobotoFont</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorGrayTwo</item>
+        <item name="colorAccent">@color/colorGrayThree</item>
         <item name="android:actionBarStyle">@style/MyActionBar</item>
         <item name="android:textColorSecondary">@color/colorWhite</item>
 
+    </style>
+    <style name="SoundieSeekBarTheme" parent="Widget.AppCompat.SeekBar" >
+        <item name="colorAccent">@color/colorRedOne</item>
     </style>
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
         <item name="android:background">#C1000E</item>

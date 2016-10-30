@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/songGroupLayout"
+    android:background="@color/colorGrayOne">
+
+
+    <ImageView
+        android:layout_width="105dp"
+        android:layout_height="105dp"
+        android:src="@drawable/coverimage"
+        android:id="@+id/coverThumbImage"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="15dp" />
+
+
+    <RelativeLayout
+        android:id="@+id/rowOne"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@+id/coverThumbImage"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="8dp"
+        >
+
+        <TextView
+            android:text="AAAAAAAAAA"
+            android:textColor="@color/colorWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/songTitle"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="15dp" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rowTwo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rowOne"
+        android:layout_toRightOf="@+id/coverThumbImage"
+        android:layout_marginBottom="8dp"
+        >
+
+        <TextView
+            android:text="AAAAAAAAAA2"
+            android:textColor="@color/colorWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/songArtist"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="15dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rowThree"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rowTwo"
+        android:layout_toRightOf="@+id/coverThumbImage"
+        android:layout_marginBottom="8dp"
+        >
+
+        <TextView
+            android:text="AAAAAAAAAA oide dwoijdew deiow dewiudeow "
+            android:textColor="@color/colorWhite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/songAlbum"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="15dp" />
+    </RelativeLayout>
+    <ImageButton
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:srcCompat="@drawable/icon_track_play_white"
+        android:layout_marginTop="135dp"
+        android:id="@+id/trackButtonPlay"
+        android:paddingTop="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/customfab"
+        android:layout_alignStart="@+id/coverThumbImage"
+        android:scaleType="fitCenter"
+        />
+    <ImageButton
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:srcCompat="@drawable/icon_share"
+        android:layout_marginTop="135dp"
+        android:id="@+id/trackButtonShare"
+        android:paddingTop="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="15dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/customfab"
+        android:layout_alignLeft="@+id/trackButtonPlay"
+        android:scaleType="fitCenter"
+        />
+
+</RelativeLayout>

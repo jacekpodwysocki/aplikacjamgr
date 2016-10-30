@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#303f9f</color>
     <color name="colorAccent">#FF4081</color>
 
     <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
 
     <color name="colorGrayOne">#555555</color>
     <color name="colorGrayTwo">#616161</color>
+    <color name="colorGrayThree">#f1f1f1</color>
+    <color name="colorGrayFour">#262626</color>
+    <color name="colorGrayFive">#aeaeae</color>
 
-    <color name="colorRedOne">#b71c1c</color>
+    <color name="colorRedOne">#e93a3a</color>
 
     <color name="colorFacebook">#3b5998</color>
 </resources>
