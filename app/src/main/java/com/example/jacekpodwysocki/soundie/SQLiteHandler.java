@@ -75,6 +75,23 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         Log.d(TAG, "New user inserted into sqlite: " + id);
     }
 
+    public String getUserId(){
+        String Id = "";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT Id FROM "+ TABLE_USER, null);
+        if(c.moveToFirst()){
+            do{
+                //assing values
+                Id = c.getString(0);
+
+            }while(c.moveToNext());
+        }
+        c.close();
+        db.close();
+
+        return Id;
+    }
+
     /**
      * Getting user data from database
      * */

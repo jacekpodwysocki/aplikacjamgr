@@ -67,7 +67,7 @@ public class RegistrationActivity extends AppCompatActivity {
         registerBtn = (Button) findViewById(R.id.registerBtn);
 
         //custom Toast
-        general = new General();
+        general = new General(this);
 
         // Progress dialog
         pDialog = new ProgressDialog(this);

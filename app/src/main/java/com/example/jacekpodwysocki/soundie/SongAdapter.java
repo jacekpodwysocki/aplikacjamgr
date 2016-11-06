@@ -1,6 +1,9 @@
 package com.example.jacekpodwysocki.soundie;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import static com.example.jacekpodwysocki.soundie.R.id.songArtist;
+import static java.security.AccessController.getContext;
 
 /**
  * Created by jacekpodwysocki on 22/10/2016.
@@ -115,6 +119,7 @@ public class SongAdapter extends BaseExpandableListAdapter {
         TextView songView = (TextView)songLay.findViewById(R.id.songTitle);
         TextView artistView = (TextView)songLay.findViewById(songArtist);
         TextView albumView = (TextView)songLay.findViewById(R.id.songAlbum);
+        ImageView albumCoverView = (ImageView)songLay.findViewById(R.id.coverThumbImage);
         ImageButton trackButtonPlay = (ImageButton)songLay.findViewById(R.id.trackButtonPlay);
         //get song using position
         Song currSong = songs.get(groupPosition);
@@ -126,12 +131,22 @@ public class SongAdapter extends BaseExpandableListAdapter {
         final String songTitle = currSong.getTitle();
         final String songArtist = currSong.getArtist();
         final String songPath = currSong.getPath();
+        final Bitmap songAlbumCover = currSong.getAlbumCover();
+        if(songAlbumCover == null){
+            albumCoverView.setImageDrawable(context.getResources().getDrawable(R.drawable.album_cover_placeholder));
+            Log.i("bitmapa","brak bitmapy");
+        }else{
+            albumCoverView.setImageBitmap(currSong.getAlbumCover());
+            Log.i("bitmapa","bitmapa OK");
+        }
+
+
         //set position as tag
         songLay.setTag(groupPosition);
 
         trackButtonPlay.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                goToPlayer(songTitle, songArtist, songPath);
+                goToPlayer(songTitle, songArtist, songPath, songAlbumCover);
             }
         });
 
@@ -147,13 +162,14 @@ public class SongAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    public void goToPlayer(String songTitle, String songArtist, String songPath){
+    public void goToPlayer(String songTitle, String songArtist, String songPath, Bitmap albumCover){
         // pass parameter
         Intent startIntent = new Intent(context, MenuActivity.class);
         startIntent.putExtra("fragmentParam", "player");
         startIntent.putExtra("songTitle", songTitle);
         startIntent.putExtra("songArtist", songArtist);
         startIntent.putExtra("songPath", songPath);
+        startIntent.putExtra("songAlbumCover", albumCover);
         context.startActivity(startIntent);
 
     }

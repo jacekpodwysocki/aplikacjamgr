@@ -1,9 +1,11 @@
 package com.example.jacekpodwysocki.soundie;
 
+import android.Manifest;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+
         loginBtn = (Button) findViewById(R.id.loginBtn);
         registerBtn = (TextView) findViewById(R.id.registerBtn);
         loginEmail = (EditText) findViewById(R.id.registrationFirstName);
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         db = new SQLiteHandler(getApplicationContext());
 
         // custom Toast
-        general = new General();
+        general = new General(this);
 
 
         // Session manager
@@ -91,7 +95,12 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
+
+
     }
+
+
+
 
     /**
      * function to verify login details in mysql db
@@ -122,8 +131,8 @@ public class MainActivity extends AppCompatActivity {
                         session.setLogin(true);
 
                         // Now store the user in SQLite
-                        String Id = jObj.getString("Id");
 
+                        String Id = jObj.getString("Id");
                         String FirstName = jObj.getString("FirstName");
                         String LastName = jObj.getString("LastName");
                         String Email = jObj.getString("Email");
@@ -203,13 +212,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(startIntent);
     }
 
-    public void goToPlayer(View v){
-        // pass parameter
-        Intent startIntent = new Intent(getApplicationContext(), MenuActivity.class);
-        startIntent.putExtra("fragmentParam", "player");
-        startActivity(startIntent);
-
-    }
+//    public void goToPlayer(View v){
+//        // pass parameter
+//        Intent startIntent = new Intent(getApplicationContext(), MenuActivity.class);
+//        startIntent.putExtra("fragmentParam", "player");
+//        startActivity(startIntent);
+//
+//    }
     public void bypassLogin(View v){
         Button btnBypassLogin = (Button) v;
 

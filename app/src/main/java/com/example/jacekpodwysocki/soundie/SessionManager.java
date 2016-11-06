@@ -37,6 +37,8 @@ public class SessionManager {
         editor = pref.edit();
     }
 
+
+
     public void setLogin(boolean isLoggedIn) {
 
         editor.putBoolean(KEY_IS_LOGGEDIN, isLoggedIn);

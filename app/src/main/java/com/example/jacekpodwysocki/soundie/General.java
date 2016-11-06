@@ -1,14 +1,29 @@
 package com.example.jacekpodwysocki.soundie;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by jacekpodwysocki on 06/10/2016.
  */
 
 public class General {
+    private Context context;
+
+    public General(Context context){
+        this.context=context;
+    }
+
+    public void log(String postfix,String message){
+        Log.i(context.getString(R.string.debugTag)+" - "+postfix,message);
+    }
+
+
     public void showToast(String text, Context context){
         Toast mytoast = Toast.makeText(context,
                 text, Toast.LENGTH_LONG);
@@ -71,7 +86,7 @@ public class General {
      * */
     public int progressToTimer(int progress, int totalDuration) {
         int currentDuration = 0;
-        totalDuration = (int) (totalDuration / 1000);
+        totalDuration = totalDuration / 1000;
         currentDuration = (int) ((((double)progress) / 100) * totalDuration);
 
         // return current duration in milliseconds

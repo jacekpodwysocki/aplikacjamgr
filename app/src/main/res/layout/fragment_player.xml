@@ -14,9 +14,6 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
 
-
-
-
         <ImageView
             android:id="@+id/rectimage"
             android:layout_height="60dp"
@@ -34,8 +31,7 @@
             android:layout_marginStart="19dp"
             android:layout_marginTop="18dp"
             android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:onClick="goToMyMusic" />
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:text="Gorillaz - Empire Ants"
@@ -52,7 +48,7 @@
 
 
         <FrameLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/rectimage"
             android:layout_above="@+id/playerControlsLayout"
@@ -134,10 +130,10 @@
             android:layout_centerHorizontal="true" />
 
         <TextView
-            android:text="0:45"
+            android:text="0:00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/textView4"
+            android:id="@+id/trackTimeCurrent"
             android:layout_marginStart="-28dp"
             android:layout_marginTop="6dp"
             android:textColor="@color/colorWhite"
@@ -145,7 +141,7 @@
             android:layout_alignStart="@+id/trackProgress" />
 
         <TextView
-            android:text="2:12"
+            android:text="0:00"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/trackTimeLeft"

@@ -1,5 +1,7 @@
 package com.example.jacekpodwysocki.soundie;
 
+import android.graphics.Bitmap;
+
 import static android.R.attr.path;
 
 /**
@@ -12,13 +14,15 @@ public class Song {
     private String title;
     private String artist;
     private String album;
+    private Bitmap cover;
 
-    public Song(String songPath, long songID, String songTitle, String songArtist, String songAlbum) {
+    public Song(String songPath, long songID, String songTitle, String songArtist, String songAlbum,Bitmap albumCover) {
         path=songPath;
         id=songID;
         title=songTitle;
         artist=songArtist;
         album=songAlbum;
+        cover=albumCover;
     }
 
     public String getPath(){return path;}
@@ -26,4 +30,5 @@ public class Song {
     public String getTitle(){return title;}
     public String getArtist(){return artist;}
     public String getAlbum(){return album;}
+    public Bitmap getAlbumCover(){return cover;}
 }

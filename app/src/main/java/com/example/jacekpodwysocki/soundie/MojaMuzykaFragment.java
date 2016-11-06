@@ -1,9 +1,13 @@
 package com.example.jacekpodwysocki.soundie;
 
 import android.app.Fragment;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +39,7 @@ import android.database.Cursor;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.View;
@@ -51,6 +57,8 @@ public class MojaMuzykaFragment extends Fragment {
     private int lastExpandedPosition = -1;
     private ArrayList<Song> songList;
     private ExpandableListView songView;
+    final public static Uri sArtworkUri = Uri
+            .parse("content://media/external/audio/albumart");
 
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
@@ -89,9 +97,9 @@ public class MojaMuzykaFragment extends Fragment {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v,
                                         int groupPosition, long id) {
-                 Toast.makeText(getActivity().getApplicationContext(), // getApplicationContext - cała apka, getActivity - tylko obecna aktywność
-                 "Group Clicked " + listDataHeader.get(groupPosition),
-                 Toast.LENGTH_SHORT).show();
+//                 Toast.makeText(getActivity().getApplicationContext(), // getApplicationContext - cała apka, getActivity - tylko obecna aktywność
+//                 "Group Clicked " + listDataHeader.get(groupPosition),
+//                 Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -136,14 +144,14 @@ public class MojaMuzykaFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
                                         int groupPosition, int childPosition, long id) {
-                Toast.makeText(
-                        getActivity().getApplicationContext(),
-                        listDataHeader.get(groupPosition)
-                                + " : "
-                                + listDataChild.get(
-                                listDataHeader.get(groupPosition)).get(
-                                childPosition), Toast.LENGTH_SHORT)
-                        .show();
+//                Toast.makeText(
+//                        getActivity().getApplicationContext(),
+//                        listDataHeader.get(groupPosition)
+//                                + " : "
+//                                + listDataChild.get(
+//                                listDataHeader.get(groupPosition)).get(
+//                                childPosition), Toast.LENGTH_SHORT)
+//                        .show();
                 return false;
             }
         });
@@ -178,10 +186,13 @@ public class MojaMuzykaFragment extends Fragment {
                     (android.provider.MediaStore.Audio.Media.ARTIST);
             int albumColumn = songCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.ALBUM);
+            long albumIdColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ALBUM_ID);
             int mimeColumn = songCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.MIME_TYPE);
             int fullpathColumn = songCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.DATA);
+
 
             //add songs to list
 
@@ -192,6 +203,8 @@ public class MojaMuzykaFragment extends Fragment {
                 String thisArtist = songCursor.getString(artistColumn) ;
                 String thisAlbum = songCursor.getString(albumColumn);
                 String thisPath = songCursor.getString(fullpathColumn);
+
+                Bitmap coverBm = this.getAlbumart(albumIdColumn);
                 if(thisArtist.toLowerCase().contains("unknown")){
                     thisArtist = getResources().getString(R.string.textSongNoArtistAvailable);
                 }
@@ -205,10 +218,38 @@ public class MojaMuzykaFragment extends Fragment {
                 songDetails.add(thisTitle);
                 listDataChild.put(listDataHeader.get(audioCounter), songDetails);
 
-                songList.add(new Song(thisPath,thisId, thisTitle, thisArtist, thisAlbum));
+                songList.add(new Song(thisPath,thisId, thisTitle, thisArtist, thisAlbum,coverBm));
             }
             while (songCursor.moveToNext());
         }
+    }
+
+    // C Nepster, http://stackoverflow.com/questions/1954434/cover-art-on-android
+    public Bitmap getAlbumart(Long album_id)
+    {
+        Bitmap bm = null;
+        try
+        {
+            final Uri sArtworkUri = Uri
+                    .parse("content://media/external/audio/albumart");
+
+            Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);
+
+            ParcelFileDescriptor pfd = getActivity().getContentResolver()
+                    .openFileDescriptor(uri, "r");
+
+            if (pfd != null)
+            {
+                FileDescriptor fd = pfd.getFileDescriptor();
+                bm = BitmapFactory.decodeFileDescriptor(fd);
+            }else{
+                Log.i("player","pdf = null");
+            }
+        } catch (Exception e) {
+        }
+        return bm;
+
+
     }
 
 
