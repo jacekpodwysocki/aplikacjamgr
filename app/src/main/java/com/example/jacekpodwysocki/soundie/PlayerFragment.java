@@ -21,13 +21,32 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.support.v7.widget.StaggeredGridLayoutManager.TAG;
+import static com.example.jacekpodwysocki.soundie.MenuActivity.file;
+import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 import static com.example.jacekpodwysocki.soundie.R.id.coverImage;
+import static com.example.jacekpodwysocki.soundie.R.id.map;
 import static com.example.jacekpodwysocki.soundie.R.id.playerButtonBack;
 import static com.example.jacekpodwysocki.soundie.R.id.profileHeadline;
 import static com.example.jacekpodwysocki.soundie.R.id.registerBtn;
@@ -42,15 +61,18 @@ import static com.example.jacekpodwysocki.soundie.R.id.trackProgress;
 import static com.example.jacekpodwysocki.soundie.R.id.trackTimeCurrent;
 import static com.example.jacekpodwysocki.soundie.R.id.trackTimeLeft;
 import static com.example.jacekpodwysocki.soundie.R.id.trackTitleText;
+import static java.lang.Integer.parseInt;
 
 
 public class PlayerFragment extends Fragment {
 
+    private SQLiteHandler db;
     public String currentTrack;
     private TextView currentTrackText;
     private ImageView trackAlbumCover;
     private MediaPlayer mediaPlayer;
     private General general;
+//    private File file;
     private ImageButton trackButtonPlayPause;
     private ImageButton seekBack;
     private ImageButton seekForward;
@@ -59,6 +81,9 @@ public class PlayerFragment extends Fragment {
     private TextView tCurrent;
     private TextView tLeft;
     private Integer length;
+    private File fileInfo;
+    private String globalPlaybackType;
+    private String currentPath;
     private int trackSeekFwTime = 5000; // 5000 milliseconds
     private int trackSeekBwTime = 5000; // 5000 milliseconds
     // Handler to update UI timer, progress bar
@@ -68,6 +93,9 @@ public class PlayerFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater
                 .inflate(R.layout.fragment_player, container, false);
+
+        // SqLite database handler
+        db = new SQLiteHandler(getActivity());
 
         mediaPlayer = MenuActivity.mediaPlayer;
         trackAlbumCover = (ImageView) rootView.findViewById(coverImage);
@@ -83,7 +111,7 @@ public class PlayerFragment extends Fragment {
 
         MenuActivity activity = (MenuActivity) getActivity();
         String currentTrack = activity.getTrackInfoToBePlayed();
-        String currentPath = activity.getTrackPathToBePlayed();
+        currentPath = activity.getTrackPathToBePlayed();
 
         currentTrackText.setText(currentTrack);
         trackButtonPlayPause.setImageResource(R.drawable.icon_pause);
@@ -122,6 +150,7 @@ public class PlayerFragment extends Fragment {
         backButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Log.i("player","back button clicked");
+
                 goToMyMusic(view);
             }
         });
@@ -193,6 +222,7 @@ public class PlayerFragment extends Fragment {
 
 
         playSong(currentPath);
+        reportCurrentSong("start");
         return rootView;
     }
 
@@ -222,7 +252,6 @@ public class PlayerFragment extends Fragment {
         }
         try {
             if (mediaPlayer != null) {
-                Log.i("player","player not null, destroy and create new one");
                 try {
                     mediaPlayer.stop();
                     mediaPlayer.release();
@@ -239,7 +268,6 @@ public class PlayerFragment extends Fragment {
                 // update seek bar
                 updateProgressBar();
             }else{
-                Log.i("player","player null, create new one");
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(songPath);
                 mediaPlayer.prepare();
@@ -272,12 +300,14 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // stopb track timer handler
+        // stop track timer handler
         mHandler.removeCallbacks(mUpdateTimeTask);
 
         mediaPlayer.stop();
         mediaPlayer.release();
         mediaPlayer = null;
+
+        reportCurrentSong("stop");
     }
 
     /**
@@ -320,8 +350,168 @@ public class PlayerFragment extends Fragment {
         trackProgressBar.setMax(100);
     }
 
+    public void saveCurrentSongToServer(final Integer userId, final Integer fileId, final String playbackType){
+        /**
+         * Function to sync device music information to server
+         * */
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_savecurrentplayback";
 
 
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_SAVECURRENTPLAYBACK, new Response.Listener<String>() {
+
+
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+                        String reponseMessage = jObj.getString("message");
+                        general.log("PLAYER","Playback data saved: "+reponseMessage);
+
+                    } else {
+                        // Error occurred, get error message
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("PLAYER","ERROR saving playback data: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getActivity());
+                }else{
+                    general.showToast(error.getMessage(), getActivity());
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to register url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("userId", String.valueOf(userId));
+                params.put("fileId", String.valueOf(fileId));
+                params.put("playbackType", playbackType);
+
+                return params;
+            }
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    public File getFileByChecksumReponse(File responseFile){
+        general.log("PLAYER","repsponse ---> ");
+
+        if(globalPlaybackType == "start") {
+            saveCurrentSongToServer(parseInt(db.getUserId()), responseFile.getFileId(), globalPlaybackType);
+        }else if(globalPlaybackType == "stop"){
+            saveCurrentSongToServer(parseInt(db.getUserId()), responseFile.getFileId(), globalPlaybackType);
+        }
+        return responseFile;
+    }
+
+    // pobierz id pliku na podstawie jego hash'a
+    public void getFileInfoByChecksum(String checksum){
+        Integer fileId = -1;
+        // Tag used to cancel the request
+        String tag_string_req = "req_getfileinfobychecksum";
+
+
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                AppConfig.URL_GETFILEINFOBYCHECKSUM+checksum, new Response.Listener<String>() {
+
+
+            public void onResponse(String response) {
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+
+                    if (!error) {
+
+                        String fileMsg = jObj.getString("fileInfo");
+                        general.log("PLAYER","MSG: " + fileMsg);
+
+                        JSONArray fileArray = new JSONArray(fileMsg);
+
+                        general.log("PLAYER","Fetching file info OK: " + fileArray.length());
+
+                        for(int i=0; i<fileArray.length(); i++){
+
+                            JSONObject json_data = fileArray.getJSONObject(i);
+                            file = new File(Integer.valueOf(json_data.getString("FileId")),Integer.valueOf(json_data.getString("FileTitleId")),Integer.valueOf(json_data.getString("FileArtistId")),Integer.valueOf(json_data.getString("FileAlbumId")),json_data.getString("FileChecksum"));
+
+                            getFileByChecksumReponse(file);
+
+                        }
+
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("PLAYER","ERROR getting file info: "+errorMsg);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getActivity());
+                }else{
+                    general.showToast(error.getMessage(), getActivity());
+                }
+            }
+        }) {
+
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+
+    }
+
+    public void reportCurrentSong(String playbackType){
+        globalPlaybackType = playbackType;
+        getFileInfoByChecksum(general.getMD5EncryptedString(currentPath));
+
+    }
 
 
 }

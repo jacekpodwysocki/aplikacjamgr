@@ -1,14 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:padding="0dp"
-android:background="@color/colorGrayOne">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="0dp"
+    android:background="@color/colorGrayOne">
 
     <com.google.android.gms.maps.MapView android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:id="@+id/slidingMenuContainer"
+        android:layout_height="250dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorGrayTwo"
+        >
+
+        <ImageView
+            android:id="@+id/rectimage"
+            android:layout_height="60dp"
+            android:layout_width="match_parent"
+            android:src="@drawable/rectangle"
+            android:layout_alignParentStart="true">
+        </ImageView>
+
+        <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_below="@id/rectimage"
+            android:layout_height="fill_parent"
+            >
+        <RelativeLayout
+            android:id="@+id/bottomLayout"
+            android:layout_width="match_parent"
+            android:background="@color/colorGrayTwo"
+            android:layout_below="@id/rectimage"
+            android:layout_height="190dp">
+
+            <TextView
+                android:text="Użytkownik słucha w tej chwili"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textTitleCurrent"
+                android:textColor="@color/colorWhite" />
+
+            <ListView
+
+                android:id="@+id/currentSong"
+
+                android:layout_width="100dp"
+                android:layout_below="@+id/textTitleCurrent"
+                android:paddingBottom="6dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="5dp"
+                android:paddingTop="6dp"
+                android:outlineProvider="bounds"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:elevation="17dp"
+                android:layout_height="match_parent"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:background="@color/colorGrayOne" />
+
+            <TextView
+                android:text="Ostatnio odtwarzane"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_below="@+id/currentSong"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="30dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/textTitleHistory"
+                android:textColor="@color/colorWhite" />
+
+            <ListView
+
+                android:id="@+id/previousSongs"
+
+                android:layout_width="100dp"
+                android:layout_below="@+id/textTitleHistory"
+                android:paddingBottom="6dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="5dp"
+                android:paddingTop="6dp"
+                android:outlineProvider="bounds"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:elevation="17dp"
+                android:layout_height="match_parent"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:background="@color/colorGrayOne" />
+
+        </RelativeLayout>
+
+
+        </ScrollView>
+
+        <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/icon_info"
+
+        android:id="@+id/infoIcon"
+        android:layout_marginStart="19dp"
+        android:layout_marginTop="18dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+        <TextView
+            android:id="@+id/infoName"
+            android:text="Imię Nazwisko"
+            android:layout_marginTop="13dp"
+            android:layout_width="150dp"
+            android:textColor="@color/colorWhite"
+            android:layout_marginStart="15dp"
+            android:layout_toRightOf="@id/infoIcon"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/infoCity"
+            android:text="Miasto"
+            android:layout_width="wrap_content"
+            android:layout_below="@id/infoName"
+            android:textColor="@color/colorWhite"
+            android:layout_marginStart="15dp"
+            android:layout_toRightOf="@id/infoIcon"
+            android:layout_height="wrap_content"
+             />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/icon_user"
+            android:gravity="center"
+            android:id="@+id/profileIcon"
+            android:layout_toRightOf="@id/infoName"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="18dp"
+            />
+
+        <TextView
+            android:id="@+id/profileTitle"
+            android:text="Profil"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="22dp"
+            android:textColor="@color/colorWhite"
+            android:layout_marginStart="0dp"
+            android:layout_toRightOf="@id/profileIcon"
+            android:layout_height="wrap_content"
+            />
+
+        <!--minHeight and minWidth to enlarge clicakble area-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/arrow_down"
+            android:gravity="center"
+            android:id="@+id/closeIcon"
+            android:minWidth="40dp"
+            android:minHeight="40dp"
+            android:scaleType="center"
+            android:layout_marginEnd="19dp"
+            android:layout_marginTop="10dp"
+
+            android:layout_alignParentEnd="true"
+ />
+    </RelativeLayout>
+
+
 
 </RelativeLayout>

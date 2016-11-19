@@ -3,10 +3,14 @@ package com.example.jacekpodwysocki.soundie;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +22,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 
+import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 import static com.example.jacekpodwysocki.soundie.R.id.songArtist;
 import static java.security.AccessController.getContext;
 
@@ -29,7 +35,7 @@ import static java.security.AccessController.getContext;
 public class SongAdapter extends BaseExpandableListAdapter {
     // passing current context to adapter and store as a field
     private Context context;
-
+    private General general;
     private ArrayList<Song> songs;
     private Context _context;
     private List<String> _listDataHeader; // header titles
@@ -95,6 +101,9 @@ public class SongAdapter extends BaseExpandableListAdapter {
         //get title and artist strings
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
+        general = MenuActivity.general;
+//        general.log("MAP","song title: " + currSong.getTitle() + "\n"+ general.getMD5EncryptedString(currSong.getPath()));
+
 
         //set position as tag
         songLay.setTag(groupPosition);

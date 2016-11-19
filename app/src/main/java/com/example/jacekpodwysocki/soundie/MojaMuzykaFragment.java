@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
@@ -33,6 +34,8 @@ import android.widget.ExpandableListView.OnGroupExpandListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
+
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -46,11 +49,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TabHost;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.R.attr.data;
 import static android.R.id.list;
 import static android.content.ContentValues.TAG;
+import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 import static com.example.jacekpodwysocki.soundie.R.id.iconToggle;
 import static com.example.jacekpodwysocki.soundie.R.id.loginBtn;
+import static com.example.jacekpodwysocki.soundie.R.id.map;
 
 
 public class MojaMuzykaFragment extends Fragment {
@@ -78,6 +99,23 @@ public class MojaMuzykaFragment extends Fragment {
         songView = (ExpandableListView)rootView.findViewById(R.id.tracks);
         songList = new ArrayList<Song>();
         getSongList();
+
+
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+//                for(int i = 0;i< songList.size();i++){
+//                    // add songs to database
+//                    //syncSongsWithServer(songList.get(i).getTitle(),songList.get(i).getArtist(),songList.get(i).getAlbum(),general.getMD5EncryptedString(songList.get(i).getPath()));
+//                }
+                try{
+                    syncSongsWithServer(songList);
+                }
+                catch (JSONException e) {
+                    general.log("MOJA MUZYKA", "error w funkcji");
+                }
+            }
+        });
 
         // sort songs
         // poprawic: sortowanie rozwala click listener (listener się nie sortuje)
@@ -203,8 +241,8 @@ public class MojaMuzykaFragment extends Fragment {
                 String thisArtist = songCursor.getString(artistColumn) ;
                 String thisAlbum = songCursor.getString(albumColumn);
                 String thisPath = songCursor.getString(fullpathColumn);
-
                 Bitmap coverBm = this.getAlbumart(albumIdColumn);
+
                 if(thisArtist.toLowerCase().contains("unknown")){
                     thisArtist = getResources().getString(R.string.textSongNoArtistAvailable);
                 }
@@ -222,6 +260,10 @@ public class MojaMuzykaFragment extends Fragment {
             }
             while (songCursor.moveToNext());
         }
+    }
+
+    public Integer getSongsCount(){
+        return songList.size();
     }
 
     // C Nepster, http://stackoverflow.com/questions/1954434/cover-art-on-android
@@ -251,6 +293,76 @@ public class MojaMuzykaFragment extends Fragment {
 
 
     }
+
+    private void syncSongsWithServer(final ArrayList<Song> songListArray) throws JSONException {
+        /**
+         * Function to sync device music information to server
+         * */
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_syncmusic";
+
+        Map<String, JSONObject> postParam= new HashMap<String, JSONObject>();
+        for (int i = 0; i < songListArray.size(); i++) {
+            JSONObject innerObject = new JSONObject();
+            innerObject.put("fileTitle", songListArray.get(i).getTitle());
+            innerObject.put("fileArtist", songListArray.get(i).getArtist());
+            innerObject.put("fileAlbum", songListArray.get(i).getAlbum());
+            innerObject.put("fileChecksum", songListArray.get(i).getChecksum());
+            postParam.put(String.valueOf(i), innerObject);
+        }
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST,AppConfig.URL_SYNCMUSIC, new JSONObject(postParam),
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+//                        general.log("MOJA MUZYKA", "Sync to database OK: "+response.toString());
+                        try {
+                            boolean error = response.getBoolean("error");
+
+                            if (!error) {
+                                String reponseMessage = response.getString("message");
+                                general.log("PLAYER","Sync to database OK: "+reponseMessage);
+
+                            } else {
+                                // Error occurred, get error message
+                                // message
+                                String errorMsg = response.getString("message");
+                                general.log("PLAYER","Sync to database ERROR: "+errorMsg);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                general.log("MOJA MUZYKA","Sync to database ERROR: "+error.getMessage());
+            }
+        }) {
+
+            /**
+             * Passing some request headers
+             * */
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(jsonObjReq,tag_string_req);
+    }
+
 
 
 }
