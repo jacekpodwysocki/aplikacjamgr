@@ -8,10 +8,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTabHost;
 import android.util.Log;
+import java.io.File;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +68,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static android.R.attr.data;
+import static android.R.attr.path;
 import static android.R.id.list;
 import static android.content.ContentValues.TAG;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
@@ -250,6 +253,7 @@ public class MojaMuzykaFragment extends Fragment {
                     thisAlbum = getResources().getString(R.string.textSongNoAlbumAvailable);
                 }
                 String thisMime = songCursor.getString(mimeColumn);
+
 
                 listDataHeader.add(thisTitle);
                 List<String> songDetails = new ArrayList<String>();

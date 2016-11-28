@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="2"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/colorWhite"
+    >
+<android.support.percent.PercentRelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app2="2"
+    android:background="@color/colorWhite"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+
+    <ImageView
+        android:id="@+id/rectTransfer"
+        android:layout_width="match_parent"
+        android:background="@color/colorGrayOne"
+        android:layout_alignParentStart="true"
+        android:layout_height="130dp">
+    </ImageView>
+
+
+
+    <TextView
+        android:text="Queen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/songArtistTransfer"
+        android:textSize="14sp"
+        android:textColor="@color/colorGrayFive"
+        android:layout_alignStart="@+id/songTitleTransfer"
+        android:layout_below="@+id/songTitleTransfer" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressValue"
+        android:text="0%"
+        android:textAlignment="textEnd"
+        android:textColor="@color/colorGrayThree"
+        android:layout_marginEnd="12dp"
+        android:layout_alignBottom="@+id/buttonWrapper"
+        android:layout_alignParentEnd="true" />
+
+    <ImageView
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="14dp"
+        app:srcCompat="@drawable/album_cover_placeholder"
+        android:id="@+id/imageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="12dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="Smells Like Teen Spirit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:id="@+id/songTitleTransfer"
+        android:textColor="@color/colorGrayThree"
+        android:textSize="16dp"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/imageView"
+        android:layout_alignStart="@+id/imageView"
+        android:id="@+id/buttonWrapper"
+        >
+
+        <Button
+            android:text="Rozpocznij"
+            android:layout_width="100dp"
+            android:id="@+id/beginTransferButton"
+            android:background="@color/colorGreenOne"
+            android:textColor="@color/colorWhite"
+            android:textAlignment="center"
+            android:layout_height="30dp"
+
+            android:layout_marginTop="15dp" />
+
+        <Button
+            android:text="Wyślij"
+            android:layout_width="100dp"
+            android:id="@+id/btnSendFile"
+            android:background="@color/colorBlack"
+            android:textColor="@color/colorWhite"
+            android:textAlignment="center"
+            android:layout_height="30dp"
+            android:layout_toEndOf="@+id/beginTransferButton"
+            android:layout_marginTop="15dp" />
+
+        <Button
+        android:text="Przerwij"
+        android:visibility="gone"
+        android:layout_width="100dp"
+        android:id="@+id/cancelTransferButton"
+        android:background="@color/colorRedOne"
+        android:textColor="@color/colorWhite"
+        android:textAlignment="center"
+        android:layout_height="30dp"
+
+        android:layout_marginTop="15dp" />
+</RelativeLayout>
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar4"
+
+        android:progress="0"
+        android:layout_marginTop="6dp"
+        android:layout_below="@+id/buttonWrapper"
+        android:layout_alignStart="@+id/buttonWrapper"
+        android:layout_alignEnd="@+id/progressValue"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        app:theme="@style/AppTheme.RedAccent"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/rectTransfer"
+        android:id="@+id/stepsLayout">
+        <TextView
+            android:text="Twoje urządzenie"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/hostDeviceText"
+
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:textColor="@color/colorBlack"
+            android:textStyle="normal|bold" />
+
+        <TextView
+            android:text="Samsung_123"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/hostDeviceBtName"
+            android:textColor="@color/colorGrayOne"
+            android:textSize="12sp"
+            android:layout_marginTop="7dp"
+            android:layout_marginLeft="15dp"
+            android:layout_below="@+id/hostDeviceText"
+            android:layout_alignStart="@+id/hostDeviceText" />
+
+
+        <ImageView
+            android:layout_alignParentLeft="true"
+            app:srcCompat="@drawable/icon_smartphone"
+            android:gravity="center"
+            android:id="@+id/iconSmartphoneLocal"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="8dp"
+            android:layout_below="@+id/hostDeviceBtName"
+            android:layout_alignStart="@+id/hostDeviceBtName"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+
+        <TextView
+            android:text="Odbiorca"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/targetDeviceText"
+
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/colorBlack"
+            android:textStyle="normal|bold"
+            android:textAlignment="textEnd" />
+
+        <TextView
+            android:text="HTC_456"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/targetDeviceBtName"
+            android:textColor="@color/colorGrayOne"
+            android:textSize="12sp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="7dp"
+            android:layout_below="@+id/targetDeviceText"
+            android:layout_alignStart="@+id/targetDeviceText"
+            android:textAlignment="textEnd" />
+
+        <ImageView
+
+            android:layout_alignParentRight="true"
+            app:srcCompat="@drawable/icon_smartphone"
+            android:gravity="center"
+            android:id="@+id/iconSmartphoneTarget"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="8dp"
+            android:layout_below="@+id/targetDeviceBtName"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+
+        <LinearLayout
+            android:alpha="0.3"
+            android:id="@+id/stepOne"
+            android:layout_below="@id/iconSmartphoneTarget"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_gravity="left"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="left"
+                android:id="@+id/layoutStepOneLeft"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+
+
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+                    android:id="@+id/progressBarHostStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp"
+                    />
+
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickHostStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertHostStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+            </RelativeLayout>
+
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_gravity="left"
+                android:text="Bluetooth"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:id="@+id/stepOneText"
+                android:textColor="@color/colorGrayOne"
+                android:textSize="12sp"
+                android:layout_marginTop="15dp"
+                android:textAlignment="center" />
+
+            <RelativeLayout
+                android:layout_weight="1"
+                android:layout_gravity="right"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="right"
+                android:id="@+id/layoutStepOneRight"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+
+                    android:id="@+id/progressBarTargetStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp"
+                    />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickTargetStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertTargetStepOne"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/stepTwo"
+            android:alpha="0.3"
+            android:layout_below="@id/stepOne"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <RelativeLayout
+                android:layout_weight="0.5"
+                android:layout_gravity="left"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="left"
+                android:id="@+id/layoutStepTwoLeft"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+                    android:id="@+id/progressBarHostStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp"
+                    />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickHostStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertHostStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+                </RelativeLayout>
+
+
+            <TextView
+                android:layout_weight="1.5"
+                android:layout_gravity="left"
+                android:text="Widoczność urządzenia"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:id="@+id/stepTwoText"
+                android:textColor="@color/colorGrayOne"
+                android:textSize="12sp"
+                android:layout_marginTop="15dp"
+                android:textAlignment="center" />
+
+            <RelativeLayout
+                android:layout_weight="0.5"
+                android:layout_gravity="right"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="right"
+                android:id="@+id/layoutStepTwoRight"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+                    android:id="@+id/progressBarTargetStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp"
+                    />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickTargetStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertTargetStepTwo"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/stepThree"
+            android:alpha="0.3"
+            android:layout_below="@id/stepTwo"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp">
+
+            <RelativeLayout
+                android:layout_weight="0.5"
+                android:layout_gravity="left"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="left"
+                android:id="@+id/layoutStepThreeLeft"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+                    android:id="@+id/progressBarHostStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp"
+                    />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickHostStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertHostStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="22dp"
+                    android:layout_width="20dp" />
+            </RelativeLayout>
+
+
+            <TextView
+                android:layout_weight="1.5"
+                android:layout_gravity="left"
+                android:text="Nawiązanie połączenia"
+                android:gravity="center_vertical"
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:id="@+id/stepThreeText"
+                android:textColor="@color/colorGrayOne"
+                android:textSize="12sp"
+                android:layout_marginTop="15dp"
+                android:textAlignment="center" />
+
+            <RelativeLayout
+                android:layout_weight="0.5"
+                android:layout_gravity="right"
+                android:layout_alignParentLeft="true"
+                app:srcCompat="@drawable/icon_tick"
+                android:gravity="right"
+                android:id="@+id/layoutStepThreeRight"
+                android:layout_marginTop="17dp"
+                android:layout_height="20dp"
+                android:layout_width="0dp"
+                >
+                <ProgressBar
+                    android:visibility="gone"
+                    style="@android:style/Widget.ProgressBar"
+                    android:id="@+id/progressBarTargetStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp"
+                    />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_tick"
+                    android:id="@+id/tickTargetStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+                <ImageView
+                    android:visibility="gone"
+                    app:srcCompat="@drawable/icon_alert"
+                    android:id="@+id/alertTargetStepThree"
+                    android:layout_height="20dp"
+                    android:layout_marginRight="22dp"
+                    android:layout_width="20dp" />
+            </RelativeLayout>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/discoveredDevices"
+        android:layout_width="match_parent"
+        android:layout_below="@id/stepsLayout"
+        android:layout_height="400dp">
+
+        <Button
+            android:text="Wyszukaj"
+            android:layout_width="100dp"
+            android:id="@+id/startSearching"
+            android:background="@color/colorGreenOne"
+            android:textColor="@color/colorWhite"
+            android:textAlignment="center"
+            android:layout_marginLeft="15dp"
+            android:layout_height="30dp"
+
+            android:layout_marginTop="15dp" />
+
+        <ListView
+            android:layout_below="@id/startSearching"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/visibleDevices"
+
+            />
+    </RelativeLayout>
+
+
+</android.support.percent.PercentRelativeLayout>
+
+</ScrollView>

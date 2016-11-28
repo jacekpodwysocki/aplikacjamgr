@@ -2,6 +2,8 @@ package com.example.jacekpodwysocki.soundie;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
@@ -24,7 +26,7 @@ public class General {
     }
 
     public void log(String postfix,String message){
-        Log.i(context.getString(R.string.debugTag)+" - "+postfix,message);
+        Log.i(context.getString(R.string.debugTag)+" - "+android.os.Build.MODEL+" - "+postfix,message);
     }
 
 
@@ -80,6 +82,11 @@ public class General {
 
         // return percentage
         return percentage.intValue();
+    }
+
+    public static void runOnUiThread(Runnable runnable){
+        final Handler UIHandler = new Handler(Looper.getMainLooper());
+        UIHandler .post(runnable);
     }
 
     /**

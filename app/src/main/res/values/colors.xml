@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
 
     <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#000000</color>
@@ -14,6 +14,8 @@
     <color name="colorGrayFive">#aeaeae</color>
 
     <color name="colorRedOne">#e93a3a</color>
+
+    <color name="colorGreenOne">#3F9D2F</color>
 
     <color name="colorFacebook">#3b5998</color>
 </resources>

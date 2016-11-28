@@ -226,5 +226,24 @@ public class MainActivity extends AppCompatActivity {
         startActivity(startIntent);
     }
 
+    public void goToBtServer(View v){
+
+        Intent startIntent = new Intent(getApplicationContext(), TransferActivity.class);
+        Bundle b = new Bundle();
+        b.putString("key", "server");
+        startIntent.putExtras(b);
+        startActivity(startIntent);
+        finish();
+    }
+
+    public void goToBtHost(View v){
+        Intent startIntent = new Intent(getApplicationContext(), TransferActivity.class);
+        Bundle b = new Bundle();
+        b.putString("key", "host");
+        startIntent.putExtras(b);
+        startActivity(startIntent);
+        finish();
+    }
+
 }
 

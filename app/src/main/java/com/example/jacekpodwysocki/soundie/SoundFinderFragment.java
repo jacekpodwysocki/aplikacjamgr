@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -67,6 +68,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.R.attr.fragment;
 import static android.R.attr.toYDelta;
@@ -96,10 +99,16 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
     private MarkerTag markerTag;
     public MapView mapView;
     public GoogleMap map;
-    LatLng latLng;
-    Location mLastLocation;
-    Marker myLocationMarker;
-    List visibleUsers;
+    public LatLng latLng;
+    public Location mLastLocation;
+    public Marker myLocationMarker;
+    public List visibleUsers;
+    public Boolean gpsSignalAcquired = false;
+    public RelativeLayout gpsLoaderContainer;
+    final Handler gpsCheckHandler = new Handler();
+    public Runnable runn;
+    private final static int INTERVAL = 3000; //3 sec
+
     // Handler to update users on the map
     private Handler usersHandler = new Handler();
     private Marker userMarker;
@@ -133,6 +142,15 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         View rootView = inflater
                 .inflate(R.layout.fragment_sound_finder, container, false);
 
+        slidingMenuContainer = (RelativeLayout) rootView.findViewById(R.id.slidingMenuContainer);
+        slidingMenuContainer.animate().translationY(550).setDuration(300).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                infoWindowFirstLastName.setText("Pobieranie...");
+                infoWindowCity.setText("--");
+            }
+        });
+
         general = MenuActivity.general;
 
         userMarkers = new ArrayList<Marker>();
@@ -147,11 +165,12 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         mapView = (MapView) rootView.findViewById(R.id.mapview);
         mapView.onCreate(savedInstanceState);
 
+        gpsLoaderContainer = (RelativeLayout) rootView.findViewById(R.id.gpsLoaderContainer);
 
-        mapView.onResume(); // needed to get the map to display immediately
+        mapView.onResume(); // show map immediately
 
-        slidingMenuContainer = (RelativeLayout) rootView.findViewById(R.id.slidingMenuContainer);
 
+        slidingMenuContainer.setVisibility(View.INVISIBLE);
         closeIcon = (ImageView) rootView.findViewById(R.id.closeIcon);
         //slidingMenuContainer.animate().translationY(375);
 
@@ -160,17 +179,15 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         infoWindowSongTitle = (TextView) rootView.findViewById(R.id.songTitle);
         infoWindowCity = (TextView) rootView.findViewById(R.id.infoCity);
 
-        slidingMenuContainer.animate().translationY(375).setDuration(0);
         closeIcon.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View view) {
-                slidingMenuContainer.animate().translationY(375).setDuration(300);
+//                slidingMenuContainer.animate().translationY(375).setDuration(300);
+                hideSlidingMenuContainer();
                 setLoadingText();
             }
 
         });
-
-
 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
@@ -206,7 +223,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             public void onGlobalLayout() {
                 slidingMenuContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 //                general.log("MAP","height ----> : "+slidingMenuContainer.getHeight());
-
+//                hideSlidingMenuContainer();
             }
         });
 
@@ -270,7 +287,6 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 //                            userMarkers.add(userMarker);
 
 
-
                             AsyncTask.execute(new Runnable() {
                                 @Override
                                 public void run() {
@@ -287,10 +303,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                     }
                 });
 
-                // For showing a move to my location button
-                if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    general.showToast("włącz GPS!",getActivity());
-                }
+
                 //map.setMyLocationEnabled(true);
 
 
@@ -310,6 +323,9 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
                 if (location != null) {
                     general.log("MAP", "lokalizacja OK");
+                    gpsSignalAcquired = true;
+                    hideGpsSignalContainer();
+
                     Double lat,lon;
                     if (myLocationMarker != null) {
                         myLocationMarker.remove();
@@ -318,7 +334,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                         lat = location.getLatitude ();
                         lon = location.getLongitude ();
 
-                        saveLocation(parseInt(db.getUserId()),lat,lon);
+                    saveLocation(parseInt(db.getUserId()    ),lat,lon);
 
                         LatLng initialLatLng;
                         initialLatLng = new LatLng(lat, lon);
@@ -341,18 +357,25 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                         return;
                     }
                 }else {
-                    general.showToast("brak lokalizacji", getActivity());
+                    gpsSignalAcquired = false;
+                    gpsCheckHandler.postDelayed(runn = new Runnable() {
+                        public void run() {
+                            checkGpsSignal();
+                            gpsCheckHandler.postDelayed(this, INTERVAL); //now is every 2 minutes
+                        }
+                    }, INTERVAL);
+
                     // zoom to default location
                     LatLng defaultLocation = new LatLng(52.2296756, 21.012228700000037);
                     CameraPosition cameraPosition = new CameraPosition.Builder().target(defaultLocation).zoom(10).build();
                     map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
+
                 general.log("MAP","map ready, get visible users");
                 updateUsersOnTheMap();
 
             }
         });
-
 
         return rootView;
     }
@@ -582,7 +605,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void onResponse(String response) {
                 try {
-                    general.log("MAP","user updated on the map, user markers count: "+userMarkers.size());
+//                    general.log("MAP","user updated on the map, user markers count: "+userMarkers.size());
                     JSONObject jObj = new JSONObject(response);
                     boolean error = jObj.getBoolean("error");
                     // remove user markers
@@ -774,10 +797,14 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
     private void showSlidingMenuContainer(){
+        slidingMenuContainer.setVisibility(View.VISIBLE);
         slidingMenuContainer.animate().translationY(0).setDuration(300);
     }
     private void hideSlidingMenuContainer(){
-        slidingMenuContainer.animate().translationY(375).setDuration(300).withEndAction(new Runnable() {
+        DisplayMetrics lDisplayMetrics = getResources().getDisplayMetrics();
+        Integer heightPixels = lDisplayMetrics.heightPixels;
+        Integer elemHeight = slidingMenuContainer.getHeight() + 50;
+        slidingMenuContainer.animate().translationY(elemHeight).setDuration(300).withEndAction(new Runnable() {
             @Override
             public void run() {
                 infoWindowFirstLastName.setText("Pobieranie...");
@@ -911,7 +938,6 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                             rowItemsHistory.add(itemsHistory);
 
                         }
-                        general.log("MAP","counter adapter --->>> "+rowItemsHistory.size());
                         // adjust height C Kenneth Flynn https://kennethflynn.wordpress.com/2012/09/12/putting-android-listviews-in-scrollviews/
                         for (int i = 0; i < adapterHistory.getCount(); i++) {
                             View listItem = adapterHistory.getView(i, null, previousSongsListView);
@@ -993,6 +1019,44 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
     }
 
+    public void checkGpsSignal(){
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        String bestProvider = locationManager.getBestProvider(criteria, false);
+        Location location = locationManager.getLastKnownLocation(bestProvider);
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            gpsSignalAcquired = false;
+            showGpsSignalContainer();
+        }else if(location == null){
+            gpsSignalAcquired = false;
+            showGpsSignalContainer();
+        }else if(location != null){
+            gpsSignalAcquired = true;
+            hideGpsSignalContainer();
+//            LatLng foundLatLong = new LatLng(location.getLatitude(),location.getLongitude());
+//            CameraPosition cameraPosition = new CameraPosition.Builder()
+//                    .target(foundLatLong).zoom(14).build();
+//
+//            map.animateCamera(CameraUpdateFactory
+//                    .newCameraPosition(cameraPosition));
+//            gpsCheckHandler.removeCallbacks(runn);
+
+        }
+    }
+
+    public void showGpsSignalContainer(){
+        gpsLoaderContainer.setVisibility(View.VISIBLE);
+    }
+    public void hideGpsSignalContainer(){
+        // run on UI thread in order to have acces to elemnt to hide
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                gpsLoaderContainer.setVisibility(View.INVISIBLE);
+            }
+        });
+
+    }
 
 
 }

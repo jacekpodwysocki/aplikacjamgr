@@ -18,5 +18,7 @@ public class AppConfig {
     public static String URL_GETCURRENTFILE = APIURL+"SoundieApi/v1/getcurrentfile/";
     public static String URL_GETSONGSHISTORY = APIURL+"SoundieApi/v1/getsongshistory/";
 
+    public static String SoundieUUID = "79bf651e-18f7-4ddc-a293-bdd6b3392558";
+
     public static Integer usersUpdateInterval = 3000; //3 seconds
 }
