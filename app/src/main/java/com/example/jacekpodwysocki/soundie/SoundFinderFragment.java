@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,9 +25,11 @@ import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -76,11 +79,14 @@ import static android.R.attr.toYDelta;
 import static android.R.id.list;
 import static android.content.Context.LOCATION_SERVICE;
 import static android.provider.Contacts.SettingsColumns.KEY;
+import static android.support.v7.widget.AppCompatDrawableManager.get;
+import static com.example.jacekpodwysocki.soundie.AppConfig.gpsCheckInterval;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.mediaPlayer;
 import static com.example.jacekpodwysocki.soundie.R.id.currentSong;
 import static com.example.jacekpodwysocki.soundie.R.id.generalStats;
 import static com.example.jacekpodwysocki.soundie.R.id.loginBtn;
+import static com.example.jacekpodwysocki.soundie.R.id.parent;
 import static com.example.jacekpodwysocki.soundie.R.id.rectimage;
 import static com.example.jacekpodwysocki.soundie.R.id.slidingMenuContainer;
 import static com.example.jacekpodwysocki.soundie.R.id.registrationLastName;
@@ -103,11 +109,13 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
     public Location mLastLocation;
     public Marker myLocationMarker;
     public List visibleUsers;
+    public Integer selectedUserId;
     public Boolean gpsSignalAcquired = false;
     public RelativeLayout gpsLoaderContainer;
+    private Song currentSong;
     final Handler gpsCheckHandler = new Handler();
-    public Runnable runn;
-    private final static int INTERVAL = 3000; //3 sec
+    private ProgressDialog pDialog;
+
 
     // Handler to update users on the map
     private Handler usersHandler = new Handler();
@@ -121,6 +129,10 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
     private TextView infoWindowCity;
     public static final String volleyRequestsTagSF = "volleyRequestsTagSF";
 
+    private final Handler fileRequestResponseHandler = new Handler();
+    private Runnable runn;
+    private Runnable runnRequest;
+    public static Integer lastRequestRowId;
 
     // current song list
     private List<RowItemOptions> rowItems;
@@ -132,9 +144,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
     private List<RowItemOptions> rowItemsHistory;
     private ListView previousSongsListView;
 
-    protected static final int CONTEXTMENU_OPTION1 = 1;
-    protected static final int CONTEXTMENU_OPTION2 = 2;
-    protected static final int CONTEXTMENU_OPTION3 = 3;
+    protected static final int SONGMENU_OPTION1 = 1;
 
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -202,6 +212,8 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             e.printStackTrace();
         }
 
+        pDialog = new ProgressDialog(getActivity());
+        pDialog.setCancelable(false);
 
         currentSongListView = (ListView) rootView.findViewById(R.id.currentSong);
         previousSongsListView = (ListView) rootView.findViewById(R.id.previousSongs);
@@ -245,6 +257,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                         if (marketag != null) {
                             showSlidingMenuContainer();
                             final Integer clickedUserId = marketag.getUserId();
+                            selectedUserId = clickedUserId;
 //                        getUserDetails(markerTag.getUserId());
 
                             Projection projection = map.getProjection();
@@ -361,9 +374,9 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                     gpsCheckHandler.postDelayed(runn = new Runnable() {
                         public void run() {
                             checkGpsSignal();
-                            gpsCheckHandler.postDelayed(this, INTERVAL); //now is every 2 minutes
+                            gpsCheckHandler.postDelayed(this, gpsCheckInterval);
                         }
-                    }, INTERVAL);
+                    }, gpsCheckInterval);
 
                     // zoom to default location
                     LatLng defaultLocation = new LatLng(52.2296756, 21.012228700000037);
@@ -409,11 +422,37 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         // Set title for the context menu
-        menu.setHeaderTitle("Bla bla");
-        menu.add(Menu.NONE, CONTEXTMENU_OPTION1, 0, "Option One");
-        menu.add(Menu.NONE, CONTEXTMENU_OPTION2, 1, "Option Two");
-        menu.add(Menu.NONE, CONTEXTMENU_OPTION3, 2, "Option Three");
+
+            menu.setHeaderTitle("Pobieranie utworu ");
+            menu.add(Menu.NONE, SONGMENU_OPTION1, 0, "Poproś użytkownika o utwór");
+
     }
+
+    @Override public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        // action for file request
+        switch (item.getItemId()) {
+            // option to request file transfer
+            case SONGMENU_OPTION1:
+                RowItemOptions rowItemSelected = (RowItemOptions) adapter.getItem(0); // first item of the current song list holding only one item
+                Toast.makeText(getActivity().getApplicationContext(), "Option 1: ID " + info.id +", position " + info.position + ", songId: "+rowItemSelected.getSongId(), Toast.LENGTH_SHORT).show();
+
+                saveTransferRequest(parseInt(db.getUserId()),selectedUserId,rowItemSelected.getSongId(),0);
+                pDialog.setMessage("Oczekiwanie na odpowiedź użytkownika");
+                showDialog();
+                fileRequestResponseHandler.postDelayed(runnRequest = new Runnable() {
+                    public void run() {
+                        general.log("MAP","last request row id: "+lastRequestRowId);
+                        getFileRequestResponse(lastRequestRowId);
+                        fileRequestResponseHandler.postDelayed(this,AppConfig.fileTransferCheckInterval);
+                    }
+                }, AppConfig.fileTransferCheckInterval);
+
+                break;
+        }
+        return true;
+    }
+
 
 
     @Override
@@ -588,6 +627,77 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
         AppController.getInstance().addToRequestQueue(strReq, volleyRequestsTagSF);
     }
+
+    /**
+     * Function to store file transfer request for a user
+     * */
+    private void saveTransferRequest(final Integer userId, final Integer selectedUserId, final Integer songId, final Integer status) {
+        // Tag used to cancel the request
+        String tag_string_req = "req_savetansferrequest";
+
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_SAVETRANSFERREQUEST, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+                    if (!error) {
+                        String rowId = jObj.getString("rowId");
+                        lastRequestRowId = Integer.valueOf(rowId);
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("MAP","ERROR saving transfer request: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getActivity());
+                }else{
+                    general.showToast(error.getMessage(), getActivity());
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to save location url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("userId", String.valueOf(userId));
+                params.put("selectedUserId", String.valueOf(selectedUserId));
+                params.put("songId", String.valueOf(songId));
+                params.put("status", String.valueOf(status));
+
+                return params;
+            }
+
+        };
+
+        strReq.setTag(volleyRequestsTagSF);
+
+        // Adding request to request queue
+
+        AppController.getInstance().addToRequestQueue(strReq, volleyRequestsTagSF);
+    }
+
 
     /**
      * Function to get users from db
@@ -841,9 +951,10 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
                             JSONObject json_data = fileDetailsArray.getJSONObject(i);
 
-                            Song currentSong = new Song(json_data.getString("fileTitle"),json_data.getString("fileArtist"));
+                            Song currentSong = new Song(json_data.getString("fileTitle"),json_data.getString("fileArtist"),Integer.valueOf(json_data.getString("fileId")));
                             String currentSongTitle = currentSong.getTitle();
                             String currentSongArtist = currentSong.getArtist();
+                            Integer currentSongId = currentSong.getDbId();
 
 //                            rowItems.clear();
 //                            RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist);
@@ -852,7 +963,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 //                            // update listview
 //                            adapter.notifyDataSetChanged();
                                 rowItems.clear();
-                                RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist);
+                                RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist,currentSongId);
 
                                 rowItems.add(items);
                                 adapter =new OptionsListAdapter(getActivity().getApplicationContext(), rowItems);
@@ -903,6 +1014,9 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
+    /**
+     * gets songs history for selected user
+     */
     private void getSongsHistory(final Integer userId, final Integer limit){
         // Tag used to cancel the request
         String tag_string_req = "req_gesongshistory";
@@ -1056,6 +1170,98 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             }
         });
 
+    }
+
+    private void getFileRequestResponse(final Integer requestId){
+        // Tag used to cancel the request
+        String tag_string_req = "req_getfilerequestresponse";
+
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                AppConfig.URL_GETFILEREQUESTRESPONSE+requestId, new Response.Listener<String>() {
+            Integer status = 0;
+
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+
+                        String responseMsg = jObj.getString("requestResponseStatus");
+
+                        general.log("MAP","response message: "+responseMsg);
+
+                        status = Integer.valueOf(responseMsg);
+//                        for(int i=0; i<responseDetailsArray.length(); i++){
+//
+//                            JSONObject json_data = responseDetailsArray.getJSONObject(i);
+//
+//                            status = Integer.valueOf(json_data.getString("requestStatus"));
+//
+//                        }
+
+                        handleFileRequestResponse(status);
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("MAP","ERROR getting file request status: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getActivity());
+                }else{
+                    general.showToast(error.getMessage(), getActivity());
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private void handleFileRequestResponse(Integer requestStatus){
+        general.log("MAP","handleFileRequestResponse");
+        if(requestStatus.equals(0)){
+            general.log("MAP","status 0");
+        }else if(requestStatus.equals(1) || requestStatus.equals(2) || requestStatus.equals(3)){
+            general.log("MAP","status 1 -> -> zatrzymaj sprawdzanie statusu -> zamknij okno -> rozpocznij transfer");
+            hideDialog();
+            fileRequestResponseHandler.removeCallbacks(runnRequest);
+        }else{
+            general.log("MAP","status nieznany");
+        }
+    }
+
+    private void showDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hideDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
     }
 
 

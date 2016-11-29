@@ -14,6 +14,7 @@ import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 public class Song {
     private String path;
     private long id;
+    private Integer dbId;
     private String title;
     private String artist;
     private String album;
@@ -29,6 +30,12 @@ public class Song {
         cover=albumCover;
     }
 
+    public Song(String songTitle, String songArtist, Integer songDbId) {
+        title=songTitle;
+        artist=songArtist;
+        dbId=songDbId;
+    }
+
     public Song(String songTitle, String songArtist) {
         title=songTitle;
         artist=songArtist;
@@ -36,6 +43,7 @@ public class Song {
 
     public String getPath(){return path;}
     public long getID(){return id;}
+    public Integer getDbId(){return dbId;}
     public String getTitle(){return title;}
     public String getArtist(){return artist;}
     public String getAlbum(){return album;}
