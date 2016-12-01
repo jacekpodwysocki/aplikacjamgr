@@ -18,14 +18,19 @@ import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 public class BluetoothConnectingThread extends Thread {
     private General general;
     private Context context;
+    private String transferFilePath;
+    private String transferFileName;
     private BluetoothSocket bluetoothSocket;
     private String transferType;
     private final BluetoothDevice bluetoothDevice;
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-    public BluetoothConnectingThread(Context context,BluetoothDevice device) {
+    public BluetoothConnectingThread(Context context,BluetoothDevice device, String transferFilePath,String transferFileName,String transferType) {
         this.context=context;
         bluetoothDevice = device;
+        this.transferFilePath = transferFilePath;
+        this.transferType = transferType;
+        this.transferFileName = transferFileName;
         general = new General(context);
 
         BluetoothSocket temp = null;
@@ -39,6 +44,7 @@ public class BluetoothConnectingThread extends Thread {
     }
 
     public void run() {
+        general.log("BT Connecting","value: "+transferFileName);
         // Cancel any discovery as it will slow down the connection
         mBluetoothAdapter.cancelDiscovery();
 
@@ -48,7 +54,7 @@ public class BluetoothConnectingThread extends Thread {
             bluetoothSocket.connect();
             general.log("BT Connecting","Connected");
 
-            BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket);
+            BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket,transferFilePath,transferFileName,transferType);
             t.start();
 
         } catch (IOException connectException) {
@@ -60,7 +66,7 @@ public class BluetoothConnectingThread extends Thread {
                 bluetoothSocket.connect();
                 general.log("BT Connecting","Connected with failback");
 
-                BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket);
+                BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket,transferFilePath,transferFileName,transferType);
                 t.start();
             }catch (Exception e2) {
                 general.log("BT Connecting","Couldn't establish Bluetooth connection!");
@@ -71,13 +77,7 @@ public class BluetoothConnectingThread extends Thread {
                 }
             }
         }
-            // Code to manage the connection in a separate thread
-            /*
-            manageBluetoothConnection(bluetoothSocket);
-            */
 
-//            BluetoothConnectedThread ct = new BluetoothConnectedThread(context,bluetoothSocket,"sending");
-//            ct.start();
     }
 
     // Cancel an open connection and terminate the thread

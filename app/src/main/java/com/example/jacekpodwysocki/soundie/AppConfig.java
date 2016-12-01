@@ -20,6 +20,7 @@ public class AppConfig {
     public static String URL_GETCURRENTFILE = APIURL+"SoundieApi/v1/getcurrentfile/";
     public static String URL_GETSONGSHISTORY = APIURL+"SoundieApi/v1/getsongshistory/";
     public static String URL_GETFILEREQUESTDETAILS = APIURL+"SoundieApi/v1/getfilerequestdetails/";
+    public static String URL_GETFILEDETAILS = APIURL+"SoundieApi/v1/getfiledetails/";
     public static String URL_GETFILEREQUESTRESPONSE = APIURL+"SoundieApi/v1/getfilerequestresponse/";
     public static String URL_GETFILEREQUESTSCOUNT = APIURL+"SoundieApi/v1/getfilerequestscount/";
     public static String URL_UPDATEREQUESTSTATUS = APIURL+"SoundieApi/v1/updaterequeststatus";
@@ -27,6 +28,6 @@ public class AppConfig {
     public static String SoundieUUID = "79bf651e-18f7-4ddc-a293-bdd6b3392558";
 
     public static Integer usersUpdateInterval = 3000; // 3 seconds
-    public static Integer gpsCheckInterval = 3000; // 3 sec
-    public static Integer fileTransferCheckInterval = 3000; // 15 sec
+    public static Integer gpsCheckInterval = 3000; // 3 seconds
+    public static Integer fileTransferCheckInterval = 3000; // 3 sec
 }

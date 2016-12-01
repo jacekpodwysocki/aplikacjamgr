@@ -435,7 +435,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             // option to request file transfer
             case SONGMENU_OPTION1:
                 RowItemOptions rowItemSelected = (RowItemOptions) adapter.getItem(0); // first item of the current song list holding only one item
-                Toast.makeText(getActivity().getApplicationContext(), "Option 1: ID " + info.id +", position " + info.position + ", songId: "+rowItemSelected.getSongId(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Option 1: ID " + info.id +", position " + info.position + ", songId: "+rowItemSelected.getSongId() +", song Checksum: "+rowItemSelected.getSongChecksum(), Toast.LENGTH_SHORT).show();
 
                 saveTransferRequest(parseInt(db.getUserId()),selectedUserId,rowItemSelected.getSongId(),0);
                 pDialog.setMessage("Oczekiwanie na odpowiedź użytkownika");
@@ -927,7 +927,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
     private void showCurrentFile(final Integer userId){
         // Tag used to cancel the request
-        String tag_string_req = "req_getuserdetails";
+        String tag_string_req = "req_getcurrentfiledetails";
 
         StringRequest strReq = new StringRequest(Request.Method.GET,
                 AppConfig.URL_GETCURRENTFILE+userId, new Response.Listener<String>() {
@@ -951,10 +951,11 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 
                             JSONObject json_data = fileDetailsArray.getJSONObject(i);
 
-                            Song currentSong = new Song(json_data.getString("fileTitle"),json_data.getString("fileArtist"),Integer.valueOf(json_data.getString("fileId")));
+                            Song currentSong = new Song(json_data.getString("fileTitle"),json_data.getString("fileArtist"),Integer.valueOf(json_data.getString("fileId")),json_data.getString("fileChecksum"));
                             String currentSongTitle = currentSong.getTitle();
                             String currentSongArtist = currentSong.getArtist();
                             Integer currentSongId = currentSong.getDbId();
+                            String currentSongChecksum = currentSong.getDbChecksum();
 
 //                            rowItems.clear();
 //                            RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist);
@@ -963,7 +964,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
 //                            // update listview
 //                            adapter.notifyDataSetChanged();
                                 rowItems.clear();
-                                RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist,currentSongId);
+                                RowItemOptions items = new RowItemOptions(currentSongTitle,currentSongArtist,currentSongId,currentSongChecksum);
 
                                 rowItems.add(items);
                                 adapter =new OptionsListAdapter(getActivity().getApplicationContext(), rowItems);
@@ -1194,15 +1195,8 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                         general.log("MAP","response message: "+responseMsg);
 
                         status = Integer.valueOf(responseMsg);
-//                        for(int i=0; i<responseDetailsArray.length(); i++){
-//
-//                            JSONObject json_data = responseDetailsArray.getJSONObject(i);
-//
-//                            status = Integer.valueOf(json_data.getString("requestStatus"));
-//
-//                        }
 
-                        handleFileRequestResponse(status);
+                        handleFileRequestResponse(status,requestId);
 
                     } else {
                         // Error occurred in registration. Get the error
@@ -1241,12 +1235,24 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
         AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
-    private void handleFileRequestResponse(Integer requestStatus){
+    private void handleFileRequestResponse(Integer requestStatus, Integer requestId){
         general.log("MAP","handleFileRequestResponse");
         if(requestStatus.equals(0)){
             general.log("MAP","status 0");
-        }else if(requestStatus.equals(1) || requestStatus.equals(2) || requestStatus.equals(3)){
-            general.log("MAP","status 1 -> -> zatrzymaj sprawdzanie statusu -> zamknij okno -> rozpocznij transfer");
+        }else if(requestStatus.equals(1)) {
+            general.log("MAP", "status 1 -> -> zatrzymaj sprawdzanie statusu -> zamknij okno -> rozpocznij transfer");
+            hideDialog();
+            fileRequestResponseHandler.removeCallbacks(runnRequest);
+            // go to tranfer activity
+            Intent intent = new Intent(getActivity(), TransferActivity.class);
+            Bundle b = new Bundle();
+            b.putString("transferType", "Odbieranie");
+            b.putInt("requestId", requestId);
+            intent.putExtras(b);
+            startActivity(intent);
+
+
+        }else if(requestStatus.equals(2) || requestStatus.equals(3)){
             hideDialog();
             fileRequestResponseHandler.removeCallbacks(runnRequest);
         }else{

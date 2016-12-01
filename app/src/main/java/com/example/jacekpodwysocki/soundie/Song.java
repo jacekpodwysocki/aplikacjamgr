@@ -20,25 +20,27 @@ public class Song {
     private String album;
     private Bitmap cover;
     private String checksum;
+    private String dbChecksum;
 
     public Song(String songPath, long songID, String songTitle, String songArtist, String songAlbum,Bitmap albumCover) {
-        path=songPath;
-        id=songID;
-        title=songTitle;
-        artist=songArtist;
-        album=songAlbum;
-        cover=albumCover;
+        this.path=songPath;
+        this.id=songID;
+        this.title=songTitle;
+        this.artist=songArtist;
+        this.album=songAlbum;
+        this.cover=albumCover;
     }
 
-    public Song(String songTitle, String songArtist, Integer songDbId) {
-        title=songTitle;
-        artist=songArtist;
-        dbId=songDbId;
+    public Song(String songTitle, String songArtist, Integer songDbId, String dbChecksum) {
+        this.title=songTitle;
+        this.artist=songArtist;
+        this.dbId=songDbId;
+        this.dbChecksum=dbChecksum;
     }
 
     public Song(String songTitle, String songArtist) {
-        title=songTitle;
-        artist=songArtist;
+        this.title=songTitle;
+        this.artist=songArtist;
     }
 
     public String getPath(){return path;}
@@ -48,6 +50,7 @@ public class Song {
     public String getArtist(){return artist;}
     public String getAlbum(){return album;}
     public Bitmap getAlbumCover(){return cover;}
+    public String getDbChecksum(){return dbChecksum;}
     public String getChecksum(){
         checksum = general.getMD5EncryptedString(getPath());
         return checksum;

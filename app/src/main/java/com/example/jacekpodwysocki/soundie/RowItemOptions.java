@@ -8,11 +8,13 @@ public class RowItemOptions {
     private String songTitle;
     private String songArtist;
     private Integer songId;
+    private String songChecksum;
 
-    public RowItemOptions(String songTitle, String songArtist, Integer songId){
+    public RowItemOptions(String songTitle, String songArtist, Integer songId, String songChecksum){
         this.songTitle = songTitle;
         this.songArtist = songArtist;
         this.songId = songId;
+        this.songChecksum = songChecksum;
     }
 
     public RowItemOptions(String songTitle, String songArtist){
@@ -28,6 +30,9 @@ public class RowItemOptions {
     }
     public Integer getSongId(){
         return songId;
+    }
+    public String getSongChecksum(){
+        return songChecksum;
     }
 
     public void setSongTitle(String songTitle){

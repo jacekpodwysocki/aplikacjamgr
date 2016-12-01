@@ -198,7 +198,6 @@ public class MojaMuzykaFragment extends Fragment {
         });
 
 
-
         return rootView;
 
     }
@@ -209,11 +208,17 @@ public class MojaMuzykaFragment extends Fragment {
         Integer audioCounter = -1;
 
         ContentResolver musicResolver = getActivity().getContentResolver();
-        String fileExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3");
-        String sel = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        String[] selExtARGS = new String[]{fileExtension};
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = musicResolver.query(musicUri, null, sel, selExtARGS, null);
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + "!= 0";
+        String sortOrder = MediaStore.Audio.Media.TITLE + " ASC";
+        Cursor songCursor = musicResolver.query(uri, null, selection, null, sortOrder);
+
+//
+//        String fileExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3");
+//        String sel = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+//        String[] selExtARGS = new String[]{fileExtension};
+//        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+//        Cursor songCursor = musicResolver.query(musicUri, null, sel, selExtARGS, null);
 
 
         if(songCursor!=null && songCursor.moveToFirst()){

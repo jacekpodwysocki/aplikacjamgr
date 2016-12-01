@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
@@ -36,6 +37,9 @@ public class BluetoothConnectedThread extends Thread {
     private Context context;
     private Handler btHandler;
     private General general;
+    private String transferFilePath;
+    private String transferType;
+    private String transferFileName;
     private final BluetoothSocket mmSocket;
     private final InputStream inStream;
     private final OutputStream outStream;
@@ -44,9 +48,12 @@ public class BluetoothConnectedThread extends Thread {
     private Integer bytesRead;
     private String transferStatus;
 
-    public BluetoothConnectedThread(Context context,BluetoothSocket socket) {
+    public BluetoothConnectedThread(Context context,BluetoothSocket socket,String transferFilePath,String transferFileName,String transferType) {
         this.context=context;
         mmSocket = socket;
+        this.transferFilePath = transferFilePath;
+        this.transferFileName = transferFileName;
+        this.transferType = transferType;
         general = new General(context);
 
         InputStream tempIn = null;
@@ -62,20 +69,25 @@ public class BluetoothConnectedThread extends Thread {
         outStream = tempOut;
     }
 
-
-
     public void run() {
 
-            general.log("BT Connected", "Listening for incoming files =========================================================================");
-            // RECEIVING
+            general.log("BT Connected", "Listening for incoming files ========================================================================="+transferFileName);
+            general.log("BT Connected","SAVE PATH: "+ Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
+        // RECEIVING
             try {
-                java.io.File fileOutputstream = new java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "/test3.mp3");
+                // Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
+                java.io.File fileOutputstream = new java.io.File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "/test10.mp3");
                 fos = new FileOutputStream(fileOutputstream);
             } catch (IOException e) {
                 general.log("BT Connected", "error getting destination directory");
             }
 
-            this.sendFile();
+            if(transferType.equals("Wysyłanie")) {
+                general.log("BT Connected", "transferType = wysyłanie. Sciezka pliku ktory mabyc wyslany: "+transferFilePath);
+                this.sendFile(transferFilePath);
+            }else{
+                general.log("BT Connected", "transferType = odbieranie");
+            }
 
 
             int bufferSize = 8 * 1024;
@@ -113,6 +125,7 @@ public class BluetoothConnectedThread extends Thread {
                     } finally {
                         outStream.flush();
                         inStream.close();
+                        mmSocket.close();
                     }
                 }catch (Exception e) {
                     e.printStackTrace(); // handle exception, define IOException and others
@@ -124,19 +137,20 @@ public class BluetoothConnectedThread extends Thread {
 
 
 
-    public void sendFile(){
-        general.log("BT Connected", "TRANSFER TYPE SENDING =========================================================================");
+    public void sendFile(String fileUrl){
+        general.log("BT Connected", "TRANSFER TYPE SENDING FILE: ============ "+ fileUrl);
 
-        String fileUri = "/system/media/Pre-loaded/Music/Bach_Suite.mp3";
-        java.io.File myFile = new java.io.File(fileUri);
+        //String fileUri = "/system/media/Pre-loaded/Music/Bach_Suite.mp3";
+        //java.io.File myFile = new java.io.File(fileUri);
+        java.io.File myFile = new java.io.File(fileUrl);
 
         if (myFile.exists()) {
-            general.log("BT Connected", "file /Bach_Suite.mp3 ISTNIEJE");
+            general.log("BT Connected", "file "+fileUrl+" istnieje");
         } else {
-            general.log("BT Connected", "file /Bach_Suite.mp3 NIE ISTNIEJE");
+            general.log("BT Connected", "file "+fileUrl+" nie istnieje");
         }
 
-        general.log("BT Connected", "file /Bach_Suite.mp3 created success!");
+        general.log("BT Connected", "file "+fileUrl+" created success!");
 
         byte[] mybytearray = new byte[(int) myFile.length()];
 

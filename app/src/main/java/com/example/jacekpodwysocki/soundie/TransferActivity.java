@@ -5,9 +5,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -18,8 +20,10 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -29,18 +33,33 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import static android.R.attr.action;
 import static android.R.attr.host;
 import static android.R.attr.name;
+import static android.R.attr.path;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.file;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
 import static com.example.jacekpodwysocki.soundie.R.id.loginBtn;
+import static com.example.jacekpodwysocki.soundie.R.id.slidingMenuContainer;
+import static com.example.jacekpodwysocki.soundie.R.id.songArtistTransfer;
 import static java.lang.Thread.sleep;
 
 public class TransferActivity extends AppCompatActivity {
@@ -50,6 +69,7 @@ public class TransferActivity extends AppCompatActivity {
 
     private final static int REQUEST_ENABLE_BT = 1; // request code for onActivityResult
     private UUID SoundieUUID;
+    private String transferFileChecksum;
     private BluetoothAdapter mBluetoothAdapter;
     private Set<BluetoothDevice> pairedDevices;
     private BluetoothDevice btDevice;
@@ -65,6 +85,8 @@ public class TransferActivity extends AppCompatActivity {
     private DevicesListAdapter devicesAdapter;
     private ListView visibleDevices;
 
+    private TextView songTitleTransfer;
+    private TextView songArtistTransfer;
 
     private TextView hostDeviceBtName;
     private TextView targetDeviceBtName;
@@ -94,6 +116,11 @@ public class TransferActivity extends AppCompatActivity {
     private ImageView tickTargetStepThree;
     private ImageView alertTargetStepThree;
 
+    private String transferType;
+    private Integer requestId;
+    private String transferFilePath;
+    private String transferFileName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +132,9 @@ public class TransferActivity extends AppCompatActivity {
         activity = this;
 
         SoundieUUID = UUID.fromString((AppConfig.SoundieUUID));
+
+        songTitleTransfer = (TextView) findViewById(R.id.songTitleTransfer);
+        songArtistTransfer = (TextView) findViewById(R.id.songArtistTransfer);
 
         beginTransferBtn = (Button) findViewById(R.id.beginTransferButton);
         cancelTransferBtn = (Button) findViewById(R.id.cancelTransferButton);
@@ -146,13 +176,18 @@ public class TransferActivity extends AppCompatActivity {
         enableBluetoothVisibility();
 
         Bundle b = getIntent().getExtras();
-        String value = null; // or other values
-        if(b != null)
-            value = b.getString("key");
 
-//        if(value.equals("server")){
+        if(b != null) {
+            transferType = b.getString("transferType");
+            requestId = b.getInt("requestId");
+        }else{
+            transferType = "empty";
+        }
+        getSupportActionBar().setTitle("Transfer BT: "+transferType + "(id "+requestId+")");
 
-        BluetoothListeningThread t = new BluetoothListeningThread(tContext,activity);
+        getFileDetails(requestId);
+
+        BluetoothListeningThread t = new BluetoothListeningThread(tContext,activity,transferFilePath,transferFileName,transferType);
         t.start();
 
 
@@ -163,7 +198,7 @@ public class TransferActivity extends AppCompatActivity {
                     String deviceAddress = deviceClick.getDeviceAddress();
                     BluetoothDevice selectedDevice = mBluetoothAdapter.getRemoteDevice(deviceAddress);
 
-                    BluetoothConnectingThread t = new BluetoothConnectingThread(tContext, selectedDevice);
+                    BluetoothConnectingThread t = new BluetoothConnectingThread(tContext, selectedDevice,transferFilePath,transferFileName,transferType);
                     t.start();
                 }
         });
@@ -322,15 +357,6 @@ public class TransferActivity extends AppCompatActivity {
                     btDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     btUuid = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
 
-//                    if (btUuid != null) {
-//                        for (Parcelable p : btUuid) {
-//                            general.log("BT","uuidExtra " + p);
-//                        }
-//                    } else {
-//
-//                        general.log("BT","uuidExtra NULL");
-//                    }
-
                     if(btDevice == null){
                         general.log("BT","device NULL");
                     }else{
@@ -360,35 +386,133 @@ public class TransferActivity extends AppCompatActivity {
 
     }
 
-    public void convertFileToByteArray(){
-        String fileUri = "file:///system/media/Pre-loaded/Music/Bach_Suite.mp3";
 
-        java.io.File f = new java.io.File("/system/media/Pre-loaded/Music/Bach_Suite.mp3");
-        Uri imageUri = Uri.fromFile(f);
-
-        InputStream inputStream = null;
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-
-        try {
-
-            inputStream = getContentResolver().openInputStream(imageUri);
+    /**
+     * Function to get file information by passing request id
+     * parameter: requestId
+     * */
+    private void getFileDetails(final Integer requestId) {
+        // Tag used to cancel the request
+        String tag_string_req = "req_getfiledetails";
 
 
-            int buffersize = 1024;
-            byte[] buffer = new byte[buffersize];
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                AppConfig.URL_GETFILEDETAILS+requestId, new Response.Listener<String>() {
 
-            int len = 0;
-            while((len = inputStream.read(buffer)) != -1){
-                byteBuffer.write(buffer, 0, len);
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+
+                        String fileMsg = jObj.getString("fileDetails");
+
+                        JSONArray fileDetailsArray = new JSONArray(fileMsg);
+
+
+                        for(int i=0; i<fileDetailsArray.length(); i++){
+
+                            JSONObject json_data = fileDetailsArray.getJSONObject(i);
+                            songTitleTransfer.setText(json_data.getString("fileTitle"));
+                            songArtistTransfer.setText(json_data.getString("fileArtist"));
+                            transferFileChecksum = json_data.getString("fileChecksum");
+                        }
+
+                        getSongByChecksum();
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("MAP","ERROR getting user details: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", activity);
+                }else{
+                    general.showToast(error.getMessage(), activity);
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
             }
 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
 
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    public void getSongByChecksum() {
+        general.log("Transfer Activity","getSongByChecksum");
+        ContentResolver musicResolver = activity.getContentResolver();
+        String fileExtension = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3");
+        String sel = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+        String[] selExtARGS = new String[]{fileExtension};
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor songCursor = musicResolver.query(musicUri, null, sel, selExtARGS, null);
+
+
+        if(songCursor!=null && songCursor.moveToFirst()){
+            //get columns
+
+            int titleColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ARTIST);
+            int albumColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ALBUM);
+            long albumIdColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ALBUM_ID);
+            int mimeColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.MIME_TYPE);
+            int fullpathColumn = songCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.DATA);
+
+
+            //add songs to list
+
+            do {
+                long thisId = songCursor.getLong(idColumn);
+                String thisTitle = songCursor.getString(titleColumn);
+                String thisArtist = songCursor.getString(artistColumn) ;
+                String thisAlbum = songCursor.getString(albumColumn);
+                String thisPath = songCursor.getString(fullpathColumn);
+
+                // get file name from path
+                java.io.File file = new java.io.File(thisPath);
+                String fileName = file.getName();
+
+                if(general.getMD5EncryptedString(thisPath).equals(transferFileChecksum)) {
+                    general.log("Transfer Activity", "ZNALEZIONY: Id: " + thisId + " thisPath: " + thisPath + " Title: " + thisTitle + " Filename: " + fileName);
+                    transferFileName = fileName;
+                    transferFilePath = thisPath;
+                }else{
+                    general.log("Transfer Activity", "NIE TEN PLIK");
+                }
+            }
+            while (songCursor.moveToNext());
         }
 
-        general.log("BT","file buffer array: "+byteBuffer.toByteArray());
+        general.log("Transfer Activity","check: "+transferFileName+"==="+transferFilePath+"==="+transferType);
 
     }
 

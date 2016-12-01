@@ -22,14 +22,20 @@ public class BluetoothListeningThread extends Thread{
     private Context context;
     private Activity activity;
     private General general;
+    private String transferFilePath;
+    private String transferType;
+    private String transferFileName;
     private BluetoothServerSocket bluetoothServerSocket;
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
 
-    public BluetoothListeningThread(Context context, Activity activity){
+    public BluetoothListeningThread(Context context, Activity activity,String transferFilePath,String transferFileName,String transferType){
         this.context=context;
         this.activity=activity;
+        this.transferFilePath=transferFilePath;
+        this.transferFileName = transferFileName;
+        this.transferType = transferType;
 
         general = new General(context);
 
@@ -45,6 +51,7 @@ public class BluetoothListeningThread extends Thread{
 
 
     public void run() {
+        general.log("BT Listening","value: "+transferFileName);
         BluetoothSocket bluetoothSocket;
         // This will block while listening until a BluetoothSocket is returned
         // or an exception occurs
@@ -68,7 +75,7 @@ public class BluetoothListeningThread extends Thread{
                     }
                 });
 
-                BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket);
+                BluetoothConnectedThread t = new BluetoothConnectedThread(context,bluetoothSocket,transferFilePath,transferFileName,transferType);
                 t.start();
 
                 break;
