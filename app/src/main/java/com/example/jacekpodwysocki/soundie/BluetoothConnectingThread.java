@@ -37,6 +37,7 @@ public class BluetoothConnectingThread extends Thread {
         // Get a BluetoothSocket to connect with the given BluetoothDevice
         try {
             temp = device.createRfcommSocketToServiceRecord(UUID.fromString(AppConfig.SoundieUUID));
+            //createInsecureRfcommSocketToServiceRecord
         } catch (Exception e) {
             Log.e("","Error creating socket");}
 
@@ -77,7 +78,6 @@ public class BluetoothConnectingThread extends Thread {
                 }
             }
         }
-
     }
 
     // Cancel an open connection and terminate the thread

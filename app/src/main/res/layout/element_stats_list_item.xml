@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:padding="5dp"
+    android:layout_height="148dp">
+
+    <RelativeLayout
+        android:layout_height="50dp"
+        android:id="@+id/statsLayout"
+        android:layout_width="230dp">
+
+        <TextView
+            android:id="@+id/position"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:text="133"
+            android:textColor="@color/colorGrayThree"
+            android:layout_marginStart="14dp"
+            android:textSize="18sp"
+            />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:text=" Jacek Podwysocki"
+            android:textColor="@color/colorGrayThree"
+            android:layout_marginStart="4dp"
+            android:textSize="18sp"
+            android:layout_toRightOf="@id/position"
+            />
+
+        <TextView
+            android:id="@+id/level"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Sound Enjoyer"
+            android:textColor="@color/colorGrayFive"
+            android:layout_marginStart="14dp"
+            android:textSize="18sp"
+            android:layout_below="@id/position"
+            />
+
+        <TextView
+            android:id="@+id/stats"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="5/12"
+            android:textColor="@color/colorGrayFive"
+            android:layout_marginStart="14dp"
+            android:textSize="18sp"
+            android:layout_toRightOf="@id/level"
+            android:layout_below="@id/name"
+            />
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:srcCompat="@drawable/badge1"
+        android:id="@+id/badge"
+        android:layout_marginTop="2dp"
+        android:layout_toRightOf="@id/statsLayout"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/icon_arrow_right"
+        android:id="@+id/showMore"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+
+        />
+
+</RelativeLayout>

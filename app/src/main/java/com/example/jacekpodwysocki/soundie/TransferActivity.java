@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -57,9 +58,16 @@ import static android.R.attr.name;
 import static android.R.attr.path;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.file;
 import static com.example.jacekpodwysocki.soundie.MenuActivity.general;
+import static com.example.jacekpodwysocki.soundie.R.id.cancelTransferButton;
+import static com.example.jacekpodwysocki.soundie.R.id.deviceAddress;
+import static com.example.jacekpodwysocki.soundie.R.id.discoveredDevices;
 import static com.example.jacekpodwysocki.soundie.R.id.loginBtn;
+import static com.example.jacekpodwysocki.soundie.R.id.position;
+import static com.example.jacekpodwysocki.soundie.R.id.progressBar4;
 import static com.example.jacekpodwysocki.soundie.R.id.slidingMenuContainer;
 import static com.example.jacekpodwysocki.soundie.R.id.songArtistTransfer;
+import static com.example.jacekpodwysocki.soundie.SoundFinderFragment.lastRequestRowId;
+import static com.example.jacekpodwysocki.soundie.SoundFinderFragment.volleyRequestsTagSF;
 import static java.lang.Thread.sleep;
 
 public class TransferActivity extends AppCompatActivity {
@@ -115,11 +123,16 @@ public class TransferActivity extends AppCompatActivity {
     private ProgressBar progressBarTargetStepThree;
     private ImageView tickTargetStepThree;
     private ImageView alertTargetStepThree;
+    private RelativeLayout discoveredDevices;
+    private ProgressBar progressBar4;
 
     private String transferType;
     private Integer requestId;
     private String transferFilePath;
     private String transferFileName;
+
+    private String targetDeviceName;
+    private String targetDeviceMac;
 
 
     @Override
@@ -137,9 +150,11 @@ public class TransferActivity extends AppCompatActivity {
         songArtistTransfer = (TextView) findViewById(R.id.songArtistTransfer);
 
         beginTransferBtn = (Button) findViewById(R.id.beginTransferButton);
-        cancelTransferBtn = (Button) findViewById(R.id.cancelTransferButton);
+        cancelTransferBtn = (Button) findViewById(cancelTransferButton);
         startSearching = (Button) findViewById(R.id.startSearching);
         btnSendFile = (Button) findViewById(R.id.btnSendFile);
+
+        progressBar4 = (ProgressBar) findViewById(R.id.progressBar4);
 
         hostDeviceBtName = (TextView) findViewById(R.id.hostDeviceBtName);
         targetDeviceBtName = (TextView) findViewById(R.id.targetDeviceBtName);
@@ -165,13 +180,27 @@ public class TransferActivity extends AppCompatActivity {
         tickTargetStepTwo = (ImageView) findViewById(R.id.tickTargetStepTwo);
         alertTargetStepTwo = (ImageView) findViewById(R.id.alertTargetStepTwo);
 
+        // step three
+        progressBarHostStepThree = (ProgressBar) findViewById(R.id.progressBarHostStepThree);
+        tickHostStepThree = (ImageView) findViewById(R.id.tickHostStepThree);
+        alertHostStepThree = (ImageView) findViewById(R.id.alertHostStepThree);
+        progressBarTargetStepThree = (ProgressBar) findViewById(R.id.progressBarTargetStepThree);
+        tickTargetStepThree = (ImageView) findViewById(R.id.tickTargetStepThree);
+        alertTargetStepThree = (ImageView) findViewById(R.id.alertTargetStepThree);
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         pairedDevices = mBluetoothAdapter.getBondedDevices();
 
+        discoveredDevices = (RelativeLayout) findViewById(R.id.discoveredDevices);
 
         // list for available devices
         visibleDevices = (ListView) findViewById(R.id.visibleDevices);
         rowItemsDevices = new ArrayList<RowItemDevices>();
+
+        discoveredDevices.setVisibility(View.GONE);
+        beginTransferBtn.setVisibility(View.INVISIBLE);
+        cancelTransferBtn.setVisibility(View.INVISIBLE);
+        progressBar4.setVisibility(View.GONE);
 
         enableBluetoothVisibility();
 
@@ -190,7 +219,6 @@ public class TransferActivity extends AppCompatActivity {
         BluetoothListeningThread t = new BluetoothListeningThread(tContext,activity,transferFilePath,transferFileName,transferType);
         t.start();
 
-
             visibleDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -203,22 +231,30 @@ public class TransferActivity extends AppCompatActivity {
                 }
         });
 
+        if (transferType.equals("Wysyłanie")) {
+
+            startDevicesDiscovery();
+            performChecks();
+        }
+
+        if (transferType.equals("Odbieranie")) {
+            performChecks();
+        }
+
         btnSendFile.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 general.log("Transfer Activity", "Send file button clicked");
-
-
             }
 
         });
 
-//        beginTransferBtn.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View view) {
-//                performChecks();
-//                startDevicesDiscovery();
-//            }
-//
-//        });
+        beginTransferBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                performChecks();
+                startDevicesDiscovery();
+            }
+
+        });
 //
         startSearching.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -284,6 +320,17 @@ public class TransferActivity extends AppCompatActivity {
 
     }
 
+    public String getHostDeviceBluetoothMac(){
+        if(isBluetoothSupported()) {
+            String deviceBtMac = mBluetoothAdapter.getAddress();
+
+            return deviceBtMac;
+        }else{
+            return "Brak informacji";
+        }
+
+    }
+
     public void disableBluetooth(){
         mBluetoothAdapter.disable();
     }
@@ -292,14 +339,14 @@ public class TransferActivity extends AppCompatActivity {
     protected void onStop() {
 //        mBluetoothAdapter.unRegisterReceiver();
         super.onStop();
-        unregisterReceiver(bluetoothReceiver);
+        if(bluetoothReceiver != null) {
+            unregisterReceiver(bluetoothReceiver);
+        }
         bluetoothReceiver = null;
     }
 
     public void performChecks(){
 
-        beginTransferBtn.setVisibility(View.GONE);
-        cancelTransferBtn.setVisibility(View.VISIBLE);
 
         // device recognize
         hostDeviceBtName.setText(getHostDeviceBluetoothName());
@@ -308,27 +355,8 @@ public class TransferActivity extends AppCompatActivity {
         stepOne.setAlpha(1f);
 
         // host
-        if(bluetoothEnabled()) {
-            tickHostStepOne.setVisibility(View.VISIBLE);
-        }else{
-            alertHostStepOne.setVisibility(View.VISIBLE);
-        }
-
-        // target
+        progressBarHostStepOne.setVisibility(View.VISIBLE);
         progressBarTargetStepOne.setVisibility(View.VISIBLE);
-
-        // step Two
-        stepTwo.setAlpha(1f);
-
-        //host
-        if(hostDeviceDiscoverable()) {
-            tickHostStepTwo.setVisibility(View.VISIBLE);
-        }else{
-            alertHostStepTwo.setVisibility(View.VISIBLE);
-        }
-
-        //target
-        progressBarTargetStepTwo.setVisibility(View.VISIBLE);
     }
 
     public void startDevicesDiscovery(){
@@ -350,7 +378,7 @@ public class TransferActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 General general = new General(tContext);
                 String action = intent.getAction();
-
+                general.showToast("Devices search", context);
                 // if device found
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 
@@ -369,7 +397,9 @@ public class TransferActivity extends AppCompatActivity {
                     }
 
                 }else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-                    general.log("BT","device search finished");
+                    getDeviceDetails(requestId);
+                    general.log("BT","device search finished.");
+
                 }
 
             }
@@ -418,6 +448,9 @@ public class TransferActivity extends AppCompatActivity {
                             songTitleTransfer.setText(json_data.getString("fileTitle"));
                             songArtistTransfer.setText(json_data.getString("fileArtist"));
                             transferFileChecksum = json_data.getString("fileChecksum");
+                        }
+                        if (transferType.equals("Odbieranie")) {
+                            saveDeviceDetails(requestId, getHostDeviceBluetoothName(), getHostDeviceBluetoothMac());
                         }
 
                         getSongByChecksum();
@@ -514,6 +547,177 @@ public class TransferActivity extends AppCompatActivity {
 
         general.log("Transfer Activity","check: "+transferFileName+"==="+transferFilePath+"==="+transferType);
 
+    }
+
+    /**
+     * Function to store device BT name and Mac Address
+     * */
+    private void saveDeviceDetails(final Integer requestId, final String deviceName, final String deviceMacAddress) {
+        // Tag used to cancel the request
+        String tag_string_req = "req_savedevicedetails";
+
+
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_SAVEDEVICEDETAILS, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+                    if (!error) {
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("MAP","ERROR getting device details: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", activity);
+                }else{
+                    general.showToast(error.getMessage(), activity);
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to save location url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("requestId", String.valueOf(requestId));
+                params.put("deviceName", String.valueOf(deviceName));
+                params.put("deviceMacAddress", String.valueOf(deviceMacAddress));
+
+                return params;
+            }
+
+        };
+
+        strReq.setTag(volleyRequestsTagSF);
+
+        // Adding request to request queue
+
+        AppController.getInstance().addToRequestQueue(strReq, volleyRequestsTagSF);
+    }
+
+    /**
+     * Function to get device details by requestId
+     * parameter: userId
+     * */
+    private void getDeviceDetails(final Integer requestId) {
+        general.log("Transfer Activity","getDeviceDetails");
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_getdevicedetails";
+
+
+        StringRequest strReq = new StringRequest(Request.Method.GET,
+                AppConfig.URL_GETDEVICEDETAILS+requestId, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    boolean error = jObj.getBoolean("error");
+
+                    if (!error) {
+                        general.log("Transfer Activity","getDeviceDetails NO ERROR");
+                        String devicesMsg = jObj.getString("deviceDetails");
+
+                        JSONArray devicesDetailsArray = new JSONArray(devicesMsg);
+
+                        for(int i=0; i<devicesDetailsArray.length(); i++){
+                            JSONObject json_data = devicesDetailsArray.getJSONObject(i);
+
+                            targetDeviceName = json_data.getString("Name");
+                            targetDeviceMac = json_data.getString("Mac");
+                        }
+                        targetDeviceBtName.setText(targetDeviceName + "("+targetDeviceMac+")");
+
+                        general.log("BT","device search finished. Send to: "+targetDeviceName +", "+targetDeviceMac);
+                        progressBar4.setVisibility(View.VISIBLE);
+
+
+                        // step Two
+                        stepTwo.setAlpha(1f);
+
+                        //host
+                        if(hostDeviceDiscoverable()) {
+                            tickHostStepTwo.setVisibility(View.VISIBLE);
+                            tickTargetStepTwo.setVisibility(View.VISIBLE);
+                        }else{
+                            alertHostStepTwo.setVisibility(View.VISIBLE);
+                        }
+
+                        stepThree.setAlpha(1f);
+                        tickHostStepThree.setVisibility(View.VISIBLE);
+                        tickTargetStepThree.setVisibility(View.VISIBLE);
+
+
+                        progressBarTargetStepOne.setVisibility(View.GONE);
+                        progressBarHostStepOne.setVisibility(View.GONE);
+                        tickHostStepOne.setVisibility(View.VISIBLE);
+                        tickTargetStepOne.setVisibility(View.VISIBLE);
+
+
+                        general.showToast("Rozpoczynanie transferu", activity.getApplicationContext());
+                        targetDeviceBtName.setText(targetDeviceName);
+
+                        BluetoothDevice selectedDevice = mBluetoothAdapter.getRemoteDevice(targetDeviceMac);
+                        BluetoothConnectingThread t = new BluetoothConnectingThread(tContext, selectedDevice,transferFilePath,transferFileName,transferType);
+                        t.start();
+
+                    } else {
+                        // Error occurred in registration. Get the error
+                        // message
+                        String errorMsg = jObj.getString("message");
+                        general.log("Transfer Activity","ERROR getting user details: "+errorMsg);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.getMessage().toLowerCase().contains("network is unreachable")) {
+                    general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", activity);
+                }else{
+                    general.showToast(error.getMessage(), activity);
+                }
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                //return super.getHeaders();
+                Map<String, String> params = new HashMap<>();
+                params.put("AUTHORIZATION",getResources().getString(R.string.soundieApiKey));
+                return params;
+            }
+
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
     }
 
 }

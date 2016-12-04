@@ -29,7 +29,6 @@ public class BluetoothListeningThread extends Thread{
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
-
     public BluetoothListeningThread(Context context, Activity activity,String transferFilePath,String transferFileName,String transferType){
         this.context=context;
         this.activity=activity;

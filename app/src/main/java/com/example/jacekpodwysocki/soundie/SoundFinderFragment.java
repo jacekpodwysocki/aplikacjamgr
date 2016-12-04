@@ -1068,7 +1068,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                         previousSongsListView.setAdapter(adapterHistory);
 
                     } else {
-                        // Error occurred in registration. Get the error
+                        // Error occurred, get the error
                         // message
                         String errorMsg = jObj.getString("message");
                         ViewGroup.LayoutParams params = previousSongsListView.getLayoutParams();
