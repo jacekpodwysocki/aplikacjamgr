@@ -1,4 +1,4 @@
-package com.example.jacekpodwysocki.aplikacjamgr;
+package com.example.jacekpodwysocki.soundie;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

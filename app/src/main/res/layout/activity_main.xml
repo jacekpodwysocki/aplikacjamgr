@@ -1,25 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<android.support.percent.PercentRelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app2="2"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    android:layout_height="match_parent" android:fitsSystemWindows="true">
 
-    <android.support.design.widget.AppBarLayout android:layout_height="wrap_content"
-        android:layout_width="match_parent" android:theme="@style/AppTheme.AppBarOverlay">
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@drawable/shapes_background"
+        android:id="@+id/loginBackground"
+        android:scaleType="centerCrop"
+        android:layout_alignParentStart="true" />
+    <ImageView
+        app:srcCompat="@drawable/logo_small"
+        android:id="@+id/loginLogo"
+        android:layout_width="120dp"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_height="150dp" />
 
-        <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
-            android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary" app:popupTheme="@style/AppTheme.PopupOverlay" />
+    <EditText
+        android:layout_height="wrap_content"
+        app:layout_widthPercent="85%"
+        android:inputType="textPersonName"
+        android:hint="Adres e-mail"
+        android:ems="10"
+        android:id="@+id/registrationFirstName"
+        android:textColorHint="@color/colorWhite"
+        android:layout_below="@+id/loginLogo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/colorWhite"
+        android:layout_width="300dp"
+        android:text="test@test.pl" />
 
-    </android.support.design.widget.AppBarLayout>
+    <EditText
+        android:layout_width="300dp"
+        app:layout_widthPercent="85%"
+        android:layout_height="wrap_content"
+        android:hint="Hasło"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/registrationPassword"
+        android:layout_centerHorizontal="true"
+        android:textColorHint="@color/colorWhite"
+        android:textColor="@color/colorWhite"
+        android:layout_below="@+id/registrationFirstName"
+        android:layout_marginTop="15dp"
+        android:text="haslo123" />
 
-    <include layout="@layout/content_main" />
+    <Button
+        android:text="Omiń logowanie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button"
+        android:visibility="gone"
+        android:onClick="bypassLogin"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
 
-    <android.support.design.widget.FloatingActionButton android:id="@+id/fab"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end" android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_email" />
+    <Button
+        android:text="ZALOGUJ"
+        android:layout_width="300dp"
+        app:layout_widthPercent="85%"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginBtn"
+        android:onClick="bypassLogin"
+        android:layout_marginTop="20dp"
+        android:background="@color/colorGrayOne"
+        android:textColor="@color/colorWhite"
+        android:layout_below="@+id/registrationPassword"
+        android:layout_centerHorizontal="true" />
 
-</android.support.design.widget.CoordinatorLayout>
+    <Button
+        android:text="ZALOGUJ PRZEZ FACEBOOK"
+        android:layout_width="300dp"
+        app:layout_widthPercent="85%"
+        android:layout_height="wrap_content"
+        android:id="@+id/button2"
+        android:onClick="bypassLogin"
+        android:background="@color/colorFacebook"
+        android:textColor="@color/colorWhite"
+        android:layout_marginBottom="45dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <View android:id="@+id/primerdivisor"
+        android:layout_width="300dp"
+        app:layout_widthPercent="85%"
+        android:layout_marginTop="30dp"
+        android:background="@color/colorGrayThree"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/loginBtn"
+        android:layout_alignStart="@+id/loginBtn" />
+
+    <TextView
+        android:text="Nie masz konta? Zarejestruj się"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/registerBtn"
+        android:textColor="@color/colorWhite"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="11dp"
+        android:onClick="goToRegistration" />
+
+    <Button
+        android:text="BT SERVER"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnBtServer"
+        android:layout_below="@+id/button"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="12dp"
+        android:onClick="goToBtServer"
+        android:visibility="invisible"
+        />
+
+    <Button
+        android:text="BT HOST"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnBtHost"
+        android:layout_below="@+id/btnBtServer"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="12dp"
+        android:onClick="goToBtHost"
+        android:visibility="invisible"
+        />
+
+</android.support.percent.PercentRelativeLayout>
+

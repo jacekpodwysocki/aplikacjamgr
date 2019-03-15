@@ -157,7 +157,7 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
             @Override
             public void run() {
                 infoWindowFirstLastName.setText("Pobieranie...");
-                infoWindowCity.setText("--");
+                infoWindowCity.setText("Warszawa");
             }
         });
 
@@ -597,7 +597,8 @@ public class SoundFinderFragment extends Fragment implements OnMapReadyCallback,
                 if(error.getMessage().toLowerCase().contains("network is unreachable")) {
                     general.showToast("Brak połączenia z internetem!\nWłącz sieć, aby móc korzystać z aplikacji", getActivity());
                 }else{
-                    general.showToast(error.getMessage(), getActivity());
+                    //general.showToast(error.getMessage(), getActivity());
+                    general.log("MAP ERROR saving LOC",error.getMessage());
                 }
             }
         }) {

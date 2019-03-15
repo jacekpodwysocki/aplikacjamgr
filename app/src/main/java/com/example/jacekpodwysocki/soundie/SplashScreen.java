@@ -1,4 +1,4 @@
-package com.example.jacekpodwysocki.aplikacjamgr;
+package com.example.jacekpodwysocki.soundie;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -18,7 +18,7 @@ public class SplashScreen extends Activity {
         Thread timerThread = new Thread(){
             public void run(){
                 try{
-                    sleep(3000); // 3 seconds
+                    sleep(3000); // 3 seconds (przywrócić wartość 3000 po testach!! )
                 }catch(InterruptedException e){
                     e.printStackTrace();
                 }finally{

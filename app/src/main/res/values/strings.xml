@@ -1,4 +1,67 @@
 <resources>
-    <string name="app_name">Aplikacja MGR</string>
+    <string name="app_name">Soundie</string>
     <string name="action_settings">Settings</string>
+    <string name="drawer_open">open</string>
+    <string name="drawer_close">close</string>
+    <string name="soundieApiKey">obo9dn03b487dft032n</string>
+    <string name="debugTag">SOUNDIE DEBUG</string>
+    <string name="textSongNoArtistAvailable">Wykonawca nieznany</string>
+    <string name="textSongNoAlbumAvailable">Album nieznany</string>
+
+    <string-array name="main_menu_items_array">
+        <item>Home</item>
+        <item>Sound Finder</item>
+        <item>Moja Muzyka</item>
+        <item>Wiadomości</item>
+        <item>Statystyki</item>
+        <item>Wyloguj</item>
+    </string-array>
+
+    <string-array name="fragments_array">
+        <item>Soundie Player</item>
+    </string-array>
+
+    <string-array name="sliding_drawer_icons_array">
+        <item>@drawable/icon_home</item>
+        <item>@drawable/icon_gps</item>
+        <item>@drawable/icon_speaker</item>
+        <item>@drawable/icon_message</item>
+        <item>@drawable/icon_stats</item>
+        <item>@drawable/icon_logout</item>
+    </string-array>
+
+    <!--testowe tablice-->
+
+    <string-array name="array1">
+        <item>
+            <text>Utwory</text>
+            <count>0</count>
+        </item>
+        <item>
+            <text>Albumy</text>
+            <count>0</count>
+        </item>
+        <item>
+            <text>Wykonawcy</text>
+            <count>0</count>
+        </item>
+    </string-array>
+
+    <string-array name="array2">
+        <item>Utwory</item>
+        <item>Albumy</item>
+        <item>Wykonawcy</item>
+    </string-array>
+
+    <string-array name="array3">
+        <item>24</item>
+        <item>32</item>
+        <item>12</item>
+    </string-array>
+
+    <!--koniec testowe tablice-->
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
